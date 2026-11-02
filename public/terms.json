@@ -1,0 +1,1896 @@
+[
+ {
+  "id": "dnp3-unsolicited",
+  "term": "Unsolicited Response",
+  "protocol": "DNP3",
+  "industry": [
+   "Oil & Gas",
+   "Power",
+   "Water"
+  ],
+  "level": "essential",
+  "summary": "An outstation-initiated report of event data sent without the master polling for it.",
+  "scenario": "A pipeline RTU detects a pressure trip. Rather than waiting for the next integrity poll, it sends an unsolicited response (function code 130) carrying the Class 1 event so the control room sees the alarm in seconds.",
+  "integration": "Enable per class on the outstation (Enable Unsolicited, FC 20), set confirm timeout and retry count, then on the master clear the IIN restart bit and send Enable Unsolicited for the classes you want. Disable it on shared radio or satellite links that cannot handle bursts.",
+  "troubleshooting": "No unsolicited data? Check the master actually enabled the classes after a restart (IIN1.7 stays set). Repeated retransmissions mean the application confirm never arrives: verify sequence numbers and the confirm timeout against link latency."
+ },
+ {
+  "id": "dnp3-class",
+  "term": "Event Classes (0-3)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "Class 0 is the static snapshot; Classes 1, 2 and 3 are priority buckets for change events.",
+  "scenario": "A substation maps breaker trips to Class 1, analog threshold crossings to Class 2 and slow-moving temperatures to Class 3, so a degraded radio link still carries trips first.",
+  "integration": "Assign each point to a class in the outstation point list. The master polls Class 1-2-3 frequently (every few seconds) and Class 0 rarely (every 10-60 minutes) as an integrity poll.",
+  "troubleshooting": "Event buffer overflow shows as IIN2.3. Raise the buffer size, poll more often, or tighten deadbands. Missing values after a restart usually mean no Class 0 integrity poll was issued."
+ },
+ {
+  "id": "dnp3-iin",
+  "term": "Internal Indications (IIN)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Two bytes in every outstation response that report device state and request errors.",
+  "scenario": "After a power cycle, a recloser reports Device Restart in IIN1.7. The master sees it, clears it with a write, then runs a full integrity poll to resynchronise.",
+  "integration": "Have the master log every IIN change. Treat Need Time (IIN1.4) as a trigger for time synchronisation, and Class Events Available bits as triggers for event polls.",
+  "troubleshooting": "IIN2.0 (No Func Code Support) means the outstation rejects the function: confirm its device profile. IIN2.1 (Object Unknown) points to a wrong group/variation in the master's request."
+ },
+ {
+  "id": "dnp3-sbo",
+  "term": "Select-Before-Operate (SBO)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "A two-step control: select the point, then operate it within a timeout, so a single stray message cannot trip equipment.",
+  "scenario": "An operator closes a feeder breaker. The master sends Select with a CROB, receives an echo, then sends Operate with the same sequence within the select timeout.",
+  "integration": "Configure the select timeout (commonly 10 s), use Direct Operate only for low-risk points, and ensure HMI permissions require operator confirmation before Select.",
+  "troubleshooting": "Status code 2 (No Select) means the Operate arrived after the timeout or with a different sequence. Status 4 (Not Supported) means the point is not control-enabled in the outstation."
+ },
+ {
+  "id": "dnp3-sa",
+  "term": "Secure Authentication (SAv5)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Challenge-response authentication of critical function codes, defined in IEEE 1815-2012.",
+  "scenario": "A water utility wants only authorised masters to operate pumps. Critical requests trigger an authentication challenge that the master answers with an HMAC using a session key.",
+  "integration": "Load a pre-shared update key on both devices, enable the update-key change flow, and define which function codes are critical (Operate, Cold Restart, Write).",
+  "troubleshooting": "Authentication errors often come from clock or key mismatch. Check the key change counter, and confirm the aggressive-mode setting matches on both ends."
+ },
+ {
+  "id": "avev-tag",
+  "term": "Telemetry Tag",
+  "protocol": "Aveva Telemetry",
+  "industry": [
+   "Oil & Gas",
+   "Water",
+   "Power"
+  ],
+  "level": "essential",
+  "summary": "A named data point in the Aveva system that represents a field value, with scaling, alarm limits and history settings.",
+  "scenario": "A pump station tag 'PS01_DischargePressure' scales a 4-20 mA input to 0-16 bar, raises a high alarm at 14 bar and is historised every 5 seconds.",
+  "integration": "Create the tag in the driver or device group, bind it to the DNP3 point address, set engineering units and deadbands, then link it to HMI graphics and the historian.",
+  "troubleshooting": "Bad quality on a tag usually means the I/O server lost the device or the address is wrong. Check the driver diagnostics before the tag configuration."
+ },
+ {
+  "id": "avev-store",
+  "term": "Store and Forward",
+  "protocol": "Aveva Telemetry",
+  "industry": [
+   "Oil & Gas",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Local buffering of data at the remote site so values reach the historian after a communication loss.",
+  "scenario": "A wellhead loses its cellular link for two hours. The RTU buffers time-stamped values and replays them when the link returns, leaving no gaps in the trend.",
+  "integration": "Enable buffering on the remote, size it for the longest expected outage, set replay rate limits so live data is not starved, and verify historian back-fill settings.",
+  "troubleshooting": "Gaps in history after reconnect point to buffer overflow or to timestamps outside the historian's late-data window. Increase the window or the buffer."
+ },
+ {
+  "id": "avev-quality",
+  "term": "Data Quality and Timestamp",
+  "protocol": "Aveva Telemetry",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "Each value carries a quality flag (good, uncertain, bad) and a timestamp that records when the field event occurred.",
+  "scenario": "A DNP3 outstation stamps an event at 10:02:11.350. The master preserves the source time, so the alarm sequence of events reflects the plant, not network delay.",
+  "integration": "Use outstation source timestamps for events, synchronise masters and outstations by NTP or GPS, and map DNP3 quality flags (ONLINE, COMM_LOST) to Aveva quality.",
+  "troubleshooting": "Events out of order mean clock drift. Check time sync, the Need Time IIN bit, and time zone handling (use UTC in the field)."
+ },
+ {
+  "id": "dnp3-read",
+  "term": "Read (Function Code 1)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "The master's request for static or event data from an outstation.",
+  "scenario": "A master sends a Read for Class 1, 2 and 3 objects every 5 seconds to collect new events from a pump station RTU.",
+  "integration": "Build polls from Read requests: Class 0 for the static snapshot, Classes 1-3 for events, or specific object groups for targeted reads. Match the poll rate to what the link can carry.",
+  "troubleshooting": "If a Read returns IIN2.1 (Object Unknown), the requested group or variation is not supported. Compare the master's object list with the outstation's device profile."
+ },
+ {
+  "id": "dnp3-direct-operate",
+  "term": "Direct Operate (Function Code 5)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "A single-message control command that executes immediately, with no select step.",
+  "scenario": "An operator starts a non-critical sump pump from the HMI. The master sends one Direct Operate with a CROB and the RTU energises the output.",
+  "integration": "Use Direct Operate only for low-consequence points. Restrict it in the master configuration so critical devices such as breakers always use Select-Before-Operate.",
+  "troubleshooting": "A control status of Not Supported means the point has no control mapping in the outstation. Check the point's control type (latch, pulse) matches the CROB sent."
+ },
+ {
+  "id": "dnp3-crob",
+  "term": "Control Relay Output Block (CROB)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Object group 12 variation 1: the command structure for operating binary outputs.",
+  "scenario": "To trip a breaker for 500 ms, the master sends a CROB with a pulse-on code, count 1 and an on-time of 500 ms.",
+  "integration": "Set the control code (pulse on/off, latch on/off), count, on-time and off-time to match the field device. Confirm the outstation maps each index to the correct relay.",
+  "troubleshooting": "The outstation echoes the CROB with a status code in the response. Read that code first: it distinguishes timeouts, local-mode lockouts and unsupported control codes."
+ },
+ {
+  "id": "dnp3-integrity-poll",
+  "term": "Integrity Poll",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "A poll for all static data (Class 0) plus any buffered events, used to resynchronise the master.",
+  "scenario": "After a communications outage the master issues an integrity poll so its database matches the RTU before event polling resumes.",
+  "integration": "Run one at start-up, after an outstation restart (IIN1.7), and periodically (commonly every 10-60 minutes) as a safety net against missed events.",
+  "troubleshooting": "Large integrity polls on slow links can span many fragments and time out. Poll Class 0 in smaller groups or increase the response timeout."
+ },
+ {
+  "id": "dnp3-fragment",
+  "term": "Application Fragment and Confirm",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Responses are split into fragments with FIR/FIN flags and a sequence number; some require an application-layer confirm.",
+  "scenario": "A response with 400 points is split across several fragments. The master tracks the sequence and confirms event-bearing fragments so the outstation can clear them.",
+  "integration": "Set the maximum fragment size to what both devices support, and enable confirms for event data. Keep timeouts longer than the worst-case link round trip.",
+  "troubleshooting": "Duplicate events usually mean the confirm was lost and the outstation retransmitted. Check confirm timeouts and look for sequence number mismatches in a capture."
+ },
+ {
+  "id": "dnp3-datalink",
+  "term": "Data Link Layer Frame",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "The frame wrapper that carries addresses and CRCs; every frame starts with the bytes 0x05 0x64.",
+  "scenario": "A protocol analyser on a serial radio link shows corrupted frames. The 0x0564 start bytes and per-block CRCs let you find where corruption begins.",
+  "integration": "Configure unique 16-bit source and destination addresses for every master and outstation. A CRC follows the header and every block of up to 16 data bytes.",
+  "troubleshooting": "CRC errors on a link point to noise, baud-rate or parity mismatch. Address mismatches show as frames that are received but never answered."
+ },
+ {
+  "id": "dnp3-deadband",
+  "term": "Deadband and Report-by-Exception",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "An analog change threshold: an event is generated only when the value moves beyond the deadband.",
+  "scenario": "A tank level point with a 1% deadband stays quiet during small ripples but reports as soon as the level moves meaningfully.",
+  "integration": "Set deadbands per point on the outstation, balancing trend resolution against bandwidth. Pair with a periodic Class 0 poll so slow drift is still captured.",
+  "troubleshooting": "A stuck-looking value often means a deadband that is too wide. A flood of events means it is too narrow or the signal is noisy."
+ },
+ {
+  "id": "dnp3-time-sync",
+  "term": "Time Synchronisation",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "The master measures link delay (Delay Measurement, function code 23) and then writes the time (object group 50) to the outstation.",
+  "scenario": "A recloser sets its Need Time bit. The master measures the delay, writes the corrected time and the bit clears.",
+  "integration": "Prefer GPS or NTP on the outstation where available; use protocol time sync for devices without another source. Keep all clocks in UTC.",
+  "troubleshooting": "If Need Time keeps returning, the outstation is rejecting the write or its clock drifts faster than the sync interval. Shorten the interval or fix the local time source."
+ },
+ {
+  "id": "dnp3-restart",
+  "term": "Cold and Warm Restart (Function Codes 13, 14)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Commands that ask an outstation to restart fully (cold) or without a complete re-initialisation (warm).",
+  "scenario": "After a firmware update, an engineer sends a restart and the outstation responds with the time it needs before it will answer again.",
+  "integration": "Treat restarts as critical operations: require operator permissions, and enable Secure Authentication where supported. After the restart, run an integrity poll.",
+  "troubleshooting": "If the outstation does not come back, confirm the master waited the time given in the response before polling again."
+ },
+ {
+  "id": "dnp3-tcp",
+  "term": "DNP3 over TCP/IP",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "DNP3 carried over TCP, conventionally on port 20000, with the same layers inside the connection.",
+  "scenario": "A utility replaces serial radios with cellular modems. The master opens a TCP connection to each RTU on port 20000 and keeps polling as before.",
+  "integration": "Decide which side initiates the connection, plan keep-alives for NAT timeouts, and place the link inside a VPN or firewall zone since DNP3 has no encryption by itself.",
+  "troubleshooting": "Frequent disconnects often come from idle NAT or carrier timeouts. Enable link status keep-alives and confirm firewall rules allow the return path."
+ },
+ {
+  "id": "g01-binary-input",
+  "term": "Binary Input (Group 1)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "Static state of a single-bit point: variation 1 is packed bits, variation 2 adds a flag byte.",
+  "scenario": "A breaker auxiliary contact is mapped as binary input 12. The master reads Group 1 Variation 2 and gets both the open/closed state and the point's quality.",
+  "integration": "Prefer variation 2 so quality travels with the value. Map each index to a tag in the master and assign it to an event class so changes are reported.",
+  "troubleshooting": "A value that never changes usually has no event class assigned or no change detection configured. Read Group 1 directly to see the static state."
+ },
+ {
+  "id": "g02-binary-event",
+  "term": "Binary Input Event (Group 2)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "A buffered change of a binary input: variation 1 has no time, 2 has absolute time, 3 has relative time.",
+  "scenario": "A feeder trips at 10:02:11.350. The RTU queues a Group 2 Variation 2 event with that timestamp so the sequence of events reflects the plant.",
+  "integration": "Use variation 2 for alarm and SOE points. Variation 3 is sent with a common time of occurrence (Group 51) to save bandwidth.",
+  "troubleshooting": "Events with wrong times come from an unsynchronised outstation clock. Check the Need Time IIN bit and the time source."
+ },
+ {
+  "id": "bi-flags",
+  "term": "Binary Input Quality Flags",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "The flag byte reports ONLINE, RESTART, COMM_LOST, REMOTE_FORCED, LOCAL_FORCED and CHATTER_FILTER, with the point state in bit 7.",
+  "scenario": "A field cabinet loses its link to an I/O module. The RTU sets COMM_LOST on those points so the HMI shows bad quality instead of a stale state.",
+  "integration": "Map DNP3 flags to the master's quality model: ONLINE only means good, and any other flag should mark the value as suspect.",
+  "troubleshooting": "Points stuck with RESTART set indicate a device restart that was never cleared. Check for the restart IIN and run an integrity poll."
+ },
+ {
+  "id": "g03-double-bit",
+  "term": "Double-Bit Binary Input (Groups 3 and 4)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Two bits per point so a device can report intermediate, determined off, determined on, or indeterminate.",
+  "scenario": "A motorised disconnector takes seconds to travel. Double-bit reporting shows it as intermediate during travel rather than guessing open or closed.",
+  "integration": "Use for switchgear with two auxiliary contacts. Map state 1 to open and state 2 to closed, and alarm on states 0 and 3.",
+  "troubleshooting": "Persistent indeterminate (3) suggests both contacts are active, a wiring or contact fault. Intermediate (0) lasting too long suggests a stuck mechanism."
+ },
+ {
+  "id": "g10-binary-output",
+  "term": "Binary Output Status (Group 10)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "The readable state of a binary output point, used to confirm the result of a control.",
+  "scenario": "After a pump start command, the master reads Group 10 to verify the output actually energised before declaring success.",
+  "integration": "Poll output status with the other statics and compare it against the feedback input to detect commands that were accepted but not executed.",
+  "troubleshooting": "A status that disagrees with the command points to a local override or an interposing relay fault, so check the flag byte for LOCAL_FORCED."
+ },
+ {
+  "id": "g11-g13-bo-events",
+  "term": "Binary Output and Command Events (Groups 11 and 13)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Group 11 reports changes in output state. Group 13 reports that a control command was issued and its status.",
+  "scenario": "An operator at the local panel trips a breaker. A Group 11 event tells the master the output changed even though no master command was sent.",
+  "integration": "Assign output points to an event class if the master must see local operations, and archive these events for audit.",
+  "troubleshooting": "Command events missing in the master mean the outstation does not generate Group 13. Check its device profile before assuming loss."
+ },
+ {
+  "id": "crob-codes",
+  "term": "CROB Control Codes",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "The control byte combines an operation type (pulse on/off, latch on/off) with a trip-close code (close or trip).",
+  "scenario": "To trip a breaker, the master sets trip-close to Trip with Pulse On, so one relay point can serve both close and trip.",
+  "integration": "Match the code to how the point is wired: paired outputs use trip-close, simple relays use latch or pulse. Set on-time to the field device's pulse requirement.",
+  "troubleshooting": "Status Not Supported after a CROB means the outstation does not support that operation type on that point. Try the type the device profile lists."
+ },
+ {
+  "id": "crob-status",
+  "term": "Control Status Codes",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Each control response carries a status: Success, Timeout, No Select, Format Error, Not Supported, Already Active, Hardware Error, Local, Not Authorized, among others.",
+  "scenario": "A close command returns status 7 (Local) because the feeder is in local control. The HMI shows that cause instead of a generic failure.",
+  "integration": "Surface the status text to operators and log it. Retry only on Timeout, never on Not Authorized or Local.",
+  "troubleshooting": "Many Timeout codes mean the select expired or the link is slow. Hardware Error points to the field device, not the protocol."
+ },
+ {
+  "id": "g30-analog-input",
+  "term": "Analog Input (Group 30)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "Static analog values in 32-bit or 16-bit integer, or single or double precision float, with or without flags.",
+  "scenario": "A pressure transmitter is read as Group 30 Variation 5 (single float with flag) to avoid manual scaling in the master.",
+  "integration": "Choose a variation per point: integers need agreed scaling, floats carry engineering units directly. Use variations with flags for any point needing quality.",
+  "troubleshooting": "Values off by a constant factor are a scaling mismatch between master and outstation. Compare raw counts against the transmitter's range."
+ },
+ {
+  "id": "ai-flags",
+  "term": "Analog Input Quality Flags",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Flags include ONLINE, RESTART, COMM_LOST, REMOTE_FORCED, LOCAL_FORCED, OVER_RANGE and REFERENCE_ERR.",
+  "scenario": "A 4-20 mA input drops to 0 mA after a broken wire. The RTU sets OVER_RANGE or COMM_LOST so the value is not trusted as a real zero.",
+  "integration": "Treat any non-ONLINE flag as questionable and block control logic or totalisers from using the value.",
+  "troubleshooting": "OVER_RANGE on a healthy sensor means the scaling range is too tight. REFERENCE_ERR points to the ADC reference or calibration."
+ },
+ {
+  "id": "g32-analog-event",
+  "term": "Analog Input Event (Group 32)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "A buffered analog change, in integer or float form, with or without a timestamp.",
+  "scenario": "A flow reading crosses its deadband. The RTU queues a Group 32 event with time so the trend shows exactly when it moved.",
+  "integration": "Match the event variation to the static one so the master does not mix scaling. Use time-stamped variations for trending.",
+  "troubleshooting": "Event overflow (IIN2.3) on busy analogs means the deadband is too tight or the poll interval too long."
+ },
+ {
+  "id": "g34-deadband",
+  "term": "Analog Input Deadband (Group 34)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "An object that lets the master read or write an analog point's deadband remotely.",
+  "scenario": "An engineer widens the deadband on a noisy level transmitter from the control room, without a site visit.",
+  "integration": "Write Group 34 in 16-bit, 32-bit or float form, and confirm the outstation supports remote deadband changes in its profile.",
+  "troubleshooting": "A write that is ignored usually means deadband is configured locally only. Read it back after writing to verify."
+ },
+ {
+  "id": "g40-g41-analog-output",
+  "term": "Analog Output Status and Block (Groups 40 and 41)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Group 41 sends a setpoint, and Group 40 reports the current output value.",
+  "scenario": "A valve position setpoint of 65% is sent as Group 41 and the master reads Group 40 to confirm the actual position.",
+  "integration": "Use Select-Before-Operate for critical setpoints, match integer scaling, and enforce limits in the master as well as the outstation.",
+  "troubleshooting": "A control status of Out of Range means the setpoint is beyond the outstation's limits, so check the scaling first."
+ },
+ {
+  "id": "g20-counter",
+  "term": "Counter (Group 20)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "essential",
+  "summary": "Running totals such as energy pulses, in 32-bit or 16-bit form, with or without flags.",
+  "scenario": "A meter pulse input accumulates kWh. The master reads Group 20 each interval and computes the difference.",
+  "integration": "Prefer 32-bit with flags. Handle rollover in the master by comparing against the previous value.",
+  "troubleshooting": "Negative differences mean the counter rolled over or was reset. Check the ROLLOVER and RESTART flags."
+ },
+ {
+  "id": "g21-frozen-counter",
+  "term": "Frozen Counter (Group 21)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "A snapshot of a counter taken at an instant, so every counter in a system can be read for the same moment.",
+  "scenario": "At 00:00 every outstation freezes its energy counters, and the master reads the frozen values later at its own pace.",
+  "integration": "Freeze on a schedule, then read Group 21. Variations with time record the freeze moment.",
+  "troubleshooting": "Mismatched totals between sites usually mean outstation clocks differ. Verify time synchronisation first."
+ },
+ {
+  "id": "freeze-functions",
+  "term": "Freeze Functions (Function Codes 7, 9, 11)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Immediate Freeze (7), Freeze and Clear (9) and Freeze at Time (11) capture counters, with no-acknowledge versions.",
+  "scenario": "A billing system uses Freeze at Time to capture all feeder meters at the top of every hour.",
+  "integration": "Use Freeze at Time with a start and interval for scheduled capture. Use Freeze and Clear only when the system expects counters to restart.",
+  "troubleshooting": "No-ack versions give no error feedback, so verify the frozen values changed. Freeze and Clear will lose data if a read is missed."
+ },
+ {
+  "id": "counter-flags",
+  "term": "Counter Flags: Rollover and Discontinuity",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "ROLLOVER marks a counter that wrapped. DISCONTINUITY marks a value that may not be continuous with the last report.",
+  "scenario": "After a meter module swap, the counter restarts at zero. DISCONTINUITY tells the master not to compute consumption across it.",
+  "integration": "Compute interval usage only when neither flag is set. Otherwise log the break and re-baseline.",
+  "troubleshooting": "Large spikes in usage nearly always sit beside a DISCONTINUITY or RESTART flag you can find in the raw data."
+ },
+ {
+  "id": "g22-g23-counter-events",
+  "term": "Counter and Frozen Counter Events (Groups 22 and 23)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water"
+  ],
+  "level": "deep",
+  "summary": "Buffered changes of counters or frozen counters, reported when the value moves past a threshold.",
+  "scenario": "A frozen counter event with time lets billing see exactly when the freeze occurred without polling Class 0.",
+  "integration": "Assign counters to event classes only when the master needs change reports. Otherwise poll statics on the billing interval.",
+  "troubleshooting": "Too many events from a busy counter means its threshold is too small. Raise it or poll statics instead."
+ },
+ {
+  "id": "g50-time",
+  "term": "Time and Date (Groups 50 and 51)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Group 50 carries absolute time in milliseconds since 1970. Group 51 is the common time of occurrence used with relative-time events.",
+  "scenario": "A burst of related events shares one common time of occurrence, with each event adding a small offset.",
+  "integration": "Keep every clock in UTC, use Group 50 for time writes, and apply Group 51 correctly when decoding relative-time events.",
+  "troubleshooting": "Events shifted by whole hours are a time zone mismatch. Check both devices use UTC."
+ },
+ {
+  "id": "g60-class-objects",
+  "term": "Class Data Objects (Group 60)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential",
+  "summary": "Group 60 variations 1 to 4 request Class 0, 1, 2 and 3 data in a single object header.",
+  "scenario": "A master sends one Read for Group 60 Variations 2, 3 and 4 to collect all events in one request.",
+  "integration": "Use Variation 1 for integrity polls and Variations 2 to 4 for event polls. Combine them in one request to save round trips.",
+  "troubleshooting": "A poll that returns nothing even though points change means those points have no class assigned."
+ },
+ {
+  "id": "qualifiers",
+  "term": "Object Qualifier Codes",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "The qualifier states how a request or response addresses points: start-stop ranges (0x00, 0x01), counts with indexes (0x17, 0x28) or all objects (0x06).",
+  "scenario": "A master reads points 0 to 99 with qualifier 0x00, and an event response uses 0x28 so each event carries its own index.",
+  "integration": "Use 0x06 for class polls and ranges for targeted reads. Events usually use indexed qualifiers.",
+  "troubleshooting": "Parse errors on a capture often come from decoding with the wrong qualifier. Confirm the prefix size before reading values."
+ },
+ {
+  "id": "g70-file-transfer",
+  "term": "File Transfer (Group 70, Function Codes 25 to 30)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Objects and function codes to open, read, write, close, delete and inspect files on an outstation.",
+  "scenario": "An engineer retrieves a disturbance record from a relay over the same link used for polling.",
+  "integration": "Open the file, transfer blocks with file transport objects, then close it. Limit file transfers to quiet periods on slow links.",
+  "troubleshooting": "A stalled transfer usually means a lost block or a timeout. Check the file transport status and reopen the file."
+ },
+ {
+  "id": "g110-octet-string",
+  "term": "Octet String (Group 110)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Arbitrary byte strings up to 255 octets, where the variation number is the string length.",
+  "scenario": "A device reports its firmware version string or a short text alarm through an octet string point.",
+  "integration": "Use for text or opaque data that has no numeric form. Keep strings short and agree their encoding.",
+  "troubleshooting": "Garbled text is usually an encoding mismatch. Confirm the character set with the device vendor."
+ },
+ {
+  "id": "fc22-assign-class",
+  "term": "Assign Class (Function Code 22)",
+  "protocol": "DNP3",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "deep",
+  "summary": "Lets the master change which event class a point belongs to.",
+  "scenario": "During a storm the master moves selected analogs to Class 1 so they are reported with higher priority.",
+  "integration": "Send Assign Class with a class object followed by the points. Check the outstation supports remote class assignment.",
+  "troubleshooting": "Assignments lost after a restart show the device does not save them. Reapply after the restart IIN or set the classes locally."
+ },
+ {
+  "id": "avt-point-types",
+  "term": "Digital, Analog and Counter Points",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Points are the server objects that hold field values, each with state, quality and alarm settings. Choose the type that matches the signal: digital for states, analog for measurements, counter for totals.",
+  "field_scenario": "A pump run status becomes a digital point, a discharge pressure becomes an analog point, and a flow totaliser becomes a counter point.",
+  "troubleshooting": "If a value shows the wrong format, check the point type matches the DNP3 object type mapped to it.",
+  "summary": "Points are the server objects that hold field values, each with state, quality and alarm settings. Choose the type that matches the signal: digital for states, analog for measurements, counter for totals.",
+  "scenario": "A pump run status becomes a digital point, a discharge pressure becomes an analog point, and a flow totaliser becomes a counter point.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-outstation",
+  "term": "Outstation Object",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "The server object that represents one remote device, with its address, protocol settings and child points. Points are created beneath it.",
+  "field_scenario": "Each RTU at a well site is one outstation object, configured with the DNP3 address of that RTU.",
+  "troubleshooting": "An outstation that never comes online usually has a wrong DNP3 address or a mismatched channel; verify both against the RTU.",
+  "summary": "The server object that represents one remote device, with its address, protocol settings and child points. Points are created beneath it.",
+  "scenario": "Each RTU at a well site is one outstation object, configured with the DNP3 address of that RTU.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-channel",
+  "term": "Communications Channel",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "The server object describing the physical path to one or more outstations, such as a serial port, radio or TCP connection. Its settings control timeouts and retries.",
+  "field_scenario": "Twelve radio RTUs share one serial channel, so the channel timeout is set longer than the radio turnaround.",
+  "troubleshooting": "Frequent timeouts on a shared channel point to timeouts set shorter than the radio keying delay; increase them.",
+  "summary": "The server object describing the physical path to one or more outstations, such as a serial port, radio or TCP connection. Its settings control timeouts and retries.",
+  "scenario": "Twelve radio RTUs share one serial channel, so the channel timeout is set longer than the radio turnaround.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-scan-rate",
+  "term": "Scan Rate",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "How often the server polls an outstation for data. Faster scans give fresher values but use more bandwidth.",
+  "field_scenario": "Critical stations scan every 5 seconds while remote tank sites scan every 2 minutes to save airtime.",
+  "troubleshooting": "If the channel is saturated, lengthen scan intervals on low-priority sites or rely on unsolicited reporting.",
+  "summary": "How often the server polls an outstation for data. Faster scans give fresher values but use more bandwidth.",
+  "scenario": "Critical stations scan every 5 seconds while remote tank sites scan every 2 minutes to save airtime.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-quality",
+  "term": "Point Quality",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A state that tells whether a value can be trusted, such as good or bad. It is set from communications state and DNP3 quality flags.",
+  "field_scenario": "When an RTU link drops, its points show bad quality instead of the last value, so operators do not act on stale data.",
+  "troubleshooting": "Bad quality on a working device means the DNP3 flag mapping or communications state is wrong; check the outstation status first.",
+  "summary": "A state that tells whether a value can be trusted, such as good or bad. It is set from communications state and DNP3 quality flags.",
+  "scenario": "When an RTU link drops, its points show bad quality instead of the last value, so operators do not act on stale data.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-scaling",
+  "term": "Raw to Engineering Scaling",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The linear conversion from raw counts reported by the device to engineering units on the point. Both ranges must match the device configuration.",
+  "field_scenario": "A transmitter reports 0 to 65535 counts for 0 to 16 bar, so the point scales those ranges accordingly.",
+  "troubleshooting": "A constant ratio error between the HMI and a field gauge means one of the scaling ranges is mis-entered.",
+  "summary": "The linear conversion from raw counts reported by the device to engineering units on the point. Both ranges must match the device configuration.",
+  "scenario": "A transmitter reports 0 to 65535 counts for 0 to 16 bar, so the point scales those ranges accordingly.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-alarm-priority",
+  "term": "Alarm Severity and Priority",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "A numeric level assigned to each alarm that orders it on the summary and drives colour and sound. Define the levels once for the whole system.",
+  "field_scenario": "A tank overflow gets the highest severity, while a communications warning is set to low so it does not bury critical alarms.",
+  "troubleshooting": "Operators ignoring alarms usually means too many are set high; review and reduce the top severity group.",
+  "summary": "A numeric level assigned to each alarm that orders it on the summary and drives colour and sound. Define the levels once for the whole system.",
+  "scenario": "A tank overflow gets the highest severity, while a communications warning is set to low so it does not bury critical alarms.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-alarm-ack",
+  "term": "Alarm Acknowledgement",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "The operator action that confirms an alarm was seen. Acknowledged and unacknowledged alarms are shown differently on the summary.",
+  "field_scenario": "After a high level alarm, the operator acknowledges it and dispatches a crew; the alarm clears when the level returns to normal.",
+  "troubleshooting": "Alarms that cannot be acknowledged are usually blocked by user permissions; check the operator's security role.",
+  "summary": "The operator action that confirms an alarm was seen. Acknowledged and unacknowledged alarms are shown differently on the summary.",
+  "scenario": "After a high level alarm, the operator acknowledges it and dispatches a crew; the alarm clears when the level returns to normal.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-alarm-hysteresis",
+  "term": "Alarm Hysteresis",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "A margin an analog value must move back beyond a limit before the alarm clears. It stops repeated alarms from a noisy signal.",
+  "field_scenario": "A level alarm at 90% clears only below 88%, so a rippling surface does not cause alarm chatter.",
+  "troubleshooting": "Alarm chatter means the hysteresis is too small for the signal noise; increase it.",
+  "summary": "A margin an analog value must move back beyond a limit before the alarm clears. It stops repeated alarms from a noisy signal.",
+  "scenario": "A level alarm at 90% clears only below 88%, so a rippling surface does not cause alarm chatter.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-event-journal",
+  "term": "Event Journal",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "A time-ordered record of alarms, state changes and operator actions. It provides the audit trail for the system.",
+  "field_scenario": "After a pump trip, engineers use the journal to see the alarm, the acknowledgement and the restart command in order.",
+  "troubleshooting": "Events in the wrong order indicate unsynchronised clocks on outstations or the server; fix time sync first.",
+  "summary": "A time-ordered record of alarms, state changes and operator actions. It provides the audit trail for the system.",
+  "scenario": "After a pump trip, engineers use the journal to see the alarm, the acknowledgement and the restart command in order.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-redundancy",
+  "term": "Server Redundancy",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "A pair of servers where a standby takes over if the primary fails. Both servers must see the same outstations and configuration.",
+  "field_scenario": "A hardware fault takes down the primary; the standby takes over polling and operators see only a brief interruption.",
+  "troubleshooting": "If the standby shows stale data after failover, check its configuration is synchronised and its channels are reachable.",
+  "summary": "A pair of servers where a standby takes over if the primary fails. Both servers must see the same outstations and configuration.",
+  "scenario": "A hardware fault takes down the primary; the standby takes over polling and operators see only a brief interruption.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-hist-delta",
+  "term": "Historian Delta Storage",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The historian stores a value only when it changes by more than the configured deadband. This saves space on slow-moving signals.",
+  "field_scenario": "A temperature that barely moves is stored only when it shifts by 0.5 degrees, instead of once a second.",
+  "troubleshooting": "Flat trend lines on a changing signal mean the value deadband is too wide; reduce it.",
+  "summary": "The historian stores a value only when it changes by more than the configured deadband. This saves space on slow-moving signals.",
+  "scenario": "A temperature that barely moves is stored only when it shifts by 0.5 degrees, instead of once a second.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-hist-cyclic",
+  "term": "Historian Cyclic Storage",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The historian stores a value at a fixed time interval regardless of change. It gives evenly spaced samples for reports.",
+  "field_scenario": "Flow totals are stored every minute so hourly reports have a sample at every boundary.",
+  "troubleshooting": "Gaps in cyclic data point to data not reaching the historian; check the connection and storage node status.",
+  "summary": "The historian stores a value at a fixed time interval regardless of change. It gives evenly spaced samples for reports.",
+  "scenario": "Flow totals are stored every minute so hourly reports have a sample at every boundary.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-hist-timedb",
+  "term": "Historian Time Deadband",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A minimum time between stored values, so a fast-changing signal cannot be stored more often than needed.",
+  "field_scenario": "A vibrating pressure signal is limited to one stored value every 2 seconds to protect storage.",
+  "troubleshooting": "Missing short events in a trend mean the time deadband is too long for that signal.",
+  "summary": "A minimum time between stored values, so a fast-changing signal cannot be stored more often than needed.",
+  "scenario": "A vibrating pressure signal is limited to one stored value every 2 seconds to protect storage.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-hist-late",
+  "term": "Historian Late Data",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Values with timestamps older than the current storage period, such as those arriving after a link outage. The historian accepts them only within a configured window.",
+  "field_scenario": "Buffered values from a remote site arrive an hour late and fill the gap in the trend.",
+  "troubleshooting": "Rejected back-filled data means the late-data window is shorter than the outage; extend the window.",
+  "summary": "Values with timestamps older than the current storage period, such as those arriving after a link outage. The historian accepts them only within a configured window.",
+  "scenario": "Buffered values from a remote site arrive an hour late and fill the gap in the trend.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-hist-snf",
+  "term": "Historian Store and Forward",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A local buffer that keeps data when the historian is unreachable and sends it when the connection returns.",
+  "field_scenario": "A network fault isolates a plant for 30 minutes and the buffered data uploads afterwards with no gap.",
+  "troubleshooting": "Data lost after a long outage means the local buffer filled; enlarge it for the longest expected outage.",
+  "summary": "A local buffer that keeps data when the historian is unreachable and sends it when the connection returns.",
+  "scenario": "A network fault isolates a plant for 30 minutes and the buffered data uploads afterwards with no gap.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-galaxy",
+  "term": "Galaxy Repository",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The System Platform database that stores all application objects, templates and configuration. Engineers change it in the development environment and deploy to runtime.",
+  "field_scenario": "An engineer edits a pump template once and every instance derived from it updates after redeployment.",
+  "troubleshooting": "Changes that do not appear at runtime were saved but not redeployed; deploy the affected objects.",
+  "summary": "The System Platform database that stores all application objects, templates and configuration. Engineers change it in the development environment and deploy to runtime.",
+  "scenario": "An engineer edits a pump template once and every instance derived from it updates after redeployment.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-sp-alarm-states",
+  "term": "System Platform Alarm States",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "Alarms move through unacknowledged and acknowledged states, both while active and after returning to normal. The state drives the display and the alarm history.",
+  "field_scenario": "A level alarm turns active unacknowledged, becomes acknowledged, and is cleared after the level returns.",
+  "troubleshooting": "Alarms that never appear in the client usually have alarm distribution disabled for the object; check the alarm provider and area.",
+  "summary": "Alarms move through unacknowledged and acknowledged states, both while active and after returning to normal. The state drives the display and the alarm history.",
+  "scenario": "A level alarm turns active unacknowledged, becomes acknowledged, and is cleared after the level returns.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-da-server",
+  "term": "DAServer and DI Objects",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Software layers that connect System Platform to field devices and expose their data as items. They carry the DNP3 or other protocol to the application.",
+  "field_scenario": "A DI object reads RTU data over DNP3 and the application references it as an input source.",
+  "troubleshooting": "Items with bad quality typically trace back to the driver connection; check the device status before the item path.",
+  "summary": "Software layers that connect System Platform to field devices and expose their data as items. They carry the DNP3 or other protocol to the application.",
+  "scenario": "A DI object reads RTU data over DNP3 and the application references it as an input source.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-dnp3-driver",
+  "term": "DNP3 Driver Poll Configuration",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Settings that define integrity and event poll intervals, and whether unsolicited reporting is enabled. They must be matched to the outstation.",
+  "field_scenario": "The driver runs an integrity poll every 30 minutes and event polls every 10 seconds on a radio link.",
+  "troubleshooting": "Duplicate or missing events usually come from mismatched unsolicited and poll settings; align them on both sides.",
+  "summary": "Settings that define integrity and event poll intervals, and whether unsolicited reporting is enabled. They must be matched to the outstation.",
+  "scenario": "The driver runs an integrity poll every 30 minutes and event polls every 10 seconds on a radio link.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-unsol-classes",
+  "term": "Unsolicited Reporting by Class",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Unsolicited reporting is enabled per class (1, 2 or 3) so each priority of event can be sent without polling. The master enables each class after the outstation starts.",
+  "field_scenario": "Class 1 breaker trips are sent unsolicited while Class 3 temperatures wait for the next poll.",
+  "troubleshooting": "If unsolicited events stop after a power cycle, the master did not re-enable the classes; send Enable Unsolicited again.",
+  "summary": "Unsolicited reporting is enabled per class (1, 2 or 3) so each priority of event can be sent without polling. The master enables each class after the outstation starts.",
+  "scenario": "Class 1 breaker trips are sent unsolicited while Class 3 temperatures wait for the next poll.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-collision",
+  "term": "Collision Avoidance",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "On shared media such as radio, an outstation waits for a clear channel and a random delay before sending an unsolicited frame. This reduces simultaneous transmissions.",
+  "field_scenario": "Ten RTUs on one radio channel send alarms after a storm without constantly colliding.",
+  "troubleshooting": "Persistent collisions mean too many outstations use unsolicited on one channel; poll some of them instead.",
+  "summary": "On shared media such as radio, an outstation waits for a clear channel and a random delay before sending an unsolicited frame. This reduces simultaneous transmissions.",
+  "scenario": "Ten RTUs on one radio channel send alarms after a storm without constantly colliding.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-polling-strategy",
+  "term": "Exception Polling Strategy",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The master polls event classes often and static data rarely, so only changes use bandwidth. A periodic integrity poll catches anything missed.",
+  "field_scenario": "Event polls run every 5 seconds and the Class 0 integrity poll runs every 30 minutes.",
+  "troubleshooting": "Stale values despite polling mean no integrity poll has run since a restart; schedule one.",
+  "summary": "The master polls event classes often and static data rarely, so only changes use bandwidth. A periodic integrity poll catches anything missed.",
+  "scenario": "Event polls run every 5 seconds and the Class 0 integrity poll runs every 30 minutes.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-startup-null",
+  "term": "Startup Null Unsolicited Response",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "After a restart, an outstation sends an empty unsolicited response to announce itself. Real unsolicited data follows only after the master enables it.",
+  "field_scenario": "After a power loss an RTU sends the null response, and the master then enables classes and runs an integrity poll.",
+  "troubleshooting": "If the null response is never confirmed, the outstation keeps retrying; confirm the master's address matches the outstation's configured master.",
+  "summary": "After a restart, an outstation sends an empty unsolicited response to announce itself. Real unsolicited data follows only after the master enables it.",
+  "scenario": "After a power loss an RTU sends the null response, and the master then enables classes and runs an integrity poll.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-multidrop",
+  "term": "Multi-Drop Link",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Several outstations share one communications line, each with a unique link address. The master polls them in turn.",
+  "field_scenario": "Six RTUs share one serial radio, each answered in sequence by the master.",
+  "troubleshooting": "Two outstations answering at once means duplicate link addresses; give each a unique address.",
+  "summary": "Several outstations share one communications line, each with a unique link address. The master polls them in turn.",
+  "scenario": "Six RTUs share one serial radio, each answered in sequence by the master.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-link-confirm",
+  "term": "Link Layer Confirmation",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "An optional acknowledgement at the data link layer for each frame. It adds reliability on noisy links but costs time.",
+  "field_scenario": "A noisy serial line enables link confirms so lost frames are retransmitted early.",
+  "troubleshooting": "Slow polling after enabling confirms is expected; keep them for unreliable links and use TCP elsewhere.",
+  "summary": "An optional acknowledgement at the data link layer for each frame. It adds reliability on noisy links but costs time.",
+  "scenario": "A noisy serial line enables link confirms so lost frames are retransmitted early.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-link-status",
+  "term": "Link Status and Keep-Alive",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Link status requests check that the other side is alive when there is no other traffic. They also keep TCP connections from timing out.",
+  "field_scenario": "A 60-second keep-alive prevents a cellular carrier from closing an idle connection.",
+  "troubleshooting": "Connections that drop when idle need a keep-alive shorter than the NAT or carrier timeout.",
+  "summary": "Link status requests check that the other side is alive when there is no other traffic. They also keep TCP connections from timing out.",
+  "scenario": "A 60-second keep-alive prevents a cellular carrier from closing an idle connection.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-event-buffer",
+  "term": "Event Buffer Sizing",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "The outstation holds events in a buffer per type until the master reads and confirms them. When it fills, it sets the overflow indication and drops events.",
+  "field_scenario": "After a fault storm, an RTU with a small binary buffer loses events and sets IIN2.3.",
+  "troubleshooting": "On overflow, enlarge the buffer, poll more often, or add an integrity poll to resynchronise.",
+  "summary": "The outstation holds events in a buffer per type until the master reads and confirms them. When it fills, it sets the overflow indication and drops events.",
+  "scenario": "After a fault storm, an RTU with a small binary buffer loses events and sets IIN2.3.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-confirm-timeout",
+  "term": "Application Confirm Timeout",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "How long a device waits for an application confirmation before retrying. It should exceed the slowest round trip on the link.",
+  "field_scenario": "A satellite link with 1.5 seconds latency uses a 6-second timeout to avoid needless retries.",
+  "troubleshooting": "Repeated duplicate events mean the timeout is shorter than the link round trip; lengthen it.",
+  "summary": "How long a device waits for an application confirmation before retrying. It should exceed the slowest round trip on the link.",
+  "scenario": "A satellite link with 1.5 seconds latency uses a 6-second timeout to avoid needless retries.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-broadcast",
+  "term": "Broadcast Addresses",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Reserved link addresses (0xFFFD to 0xFFFF) let a master send one message to all outstations. Outstations do not reply with data to broadcasts.",
+  "field_scenario": "A master broadcasts a time write so every outstation on the radio network sets its clock together.",
+  "troubleshooting": "Broadcast commands that appear ignored need verifying by reading back, since no data reply is sent.",
+  "summary": "Reserved link addresses (0xFFFD to 0xFFFF) let a master send one message to all outstations. Outstations do not reply with data to broadcasts.",
+  "scenario": "A master broadcasts a time write so every outstation on the radio network sets its clock together.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dnp3-address-plan",
+  "term": "Link Address Plan",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A documented scheme assigning a unique 16-bit address to every master and outstation. It avoids clashes across the whole network.",
+  "field_scenario": "A utility reserves address ranges per region so new RTUs never reuse an address.",
+  "troubleshooting": "Frames received but never answered often mean an address mismatch; compare master and outstation settings.",
+  "summary": "A documented scheme assigning a unique 16-bit address to every master and outstation. It avoids clashes across the whole network.",
+  "scenario": "A utility reserves address ranges per region so new RTUs never reuse an address.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-overview",
+  "term": "Secure Authentication v5 Overview",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "SAv5 authenticates critical requests with a challenge-response using a shared session key. It protects against spoofing and replay but does not encrypt data.",
+  "field_scenario": "A pump Operate command is accepted only after the master proves it holds the session key.",
+  "troubleshooting": "If every critical command fails, confirm both devices have SA enabled and a valid session key.",
+  "summary": "SAv5 authenticates critical requests with a challenge-response using a shared session key. It protects against spoofing and replay but does not encrypt data.",
+  "scenario": "A pump Operate command is accepted only after the master proves it holds the session key.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-critical-fc",
+  "term": "Critical Function Codes",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "The set of function codes that require authentication, such as Operate, Direct Operate, restarts and file operations. The list is configurable per device.",
+  "field_scenario": "Read stays open for polling while Cold Restart requires authentication.",
+  "troubleshooting": "A command rejected with an authentication error may simply be on the critical list; check the outstation's list.",
+  "summary": "The set of function codes that require authentication, such as Operate, Direct Operate, restarts and file operations. The list is configurable per device.",
+  "scenario": "Read stays open for polling while Cold Restart requires authentication.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-challenge-response",
+  "term": "Challenge-Response (Group 120 v1, v2)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "The challenger sends a random challenge (Group 120 v1) and the other side replies with a MAC over it (v2). A correct reply authorises the original request.",
+  "field_scenario": "A Select is held until the master answers the outstation's challenge, then the Select proceeds.",
+  "troubleshooting": "Reply timeouts usually mean the challenge was lost or the reply timeout is shorter than the link round trip.",
+  "summary": "The challenger sends a random challenge (Group 120 v1) and the other side replies with a MAC over it (v2). A correct reply authorises the original request.",
+  "scenario": "A Select is held until the master answers the outstation's challenge, then the Select proceeds.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-aggressive-mode",
+  "term": "Aggressive Mode (Group 120 v3)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "The requester sends the critical request with a MAC already attached, avoiding a challenge round trip. The receiver verifies it immediately.",
+  "field_scenario": "On a slow satellite link, aggressive mode halves the time to execute a control.",
+  "troubleshooting": "Failures only in aggressive mode mean one side does not support it or the challenge sequence numbers are out of step.",
+  "summary": "The requester sends the critical request with a MAC already attached, avoiding a challenge round trip. The receiver verifies it immediately.",
+  "scenario": "On a slow satellite link, aggressive mode halves the time to execute a control.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-mac",
+  "term": "Message Authentication Code (Group 120 v9)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "A keyed hash appended to a message to prove origin and integrity. SAv5 supports HMAC-SHA-256 and AES-GMAC, while HMAC-SHA-1 is legacy.",
+  "field_scenario": "Both devices are configured for HMAC-SHA-256 with the same truncation length.",
+  "troubleshooting": "MAC failures with correct keys point to a mismatched algorithm or truncation length on the two sides.",
+  "summary": "A keyed hash appended to a message to prove origin and integrity. SAv5 supports HMAC-SHA-256 and AES-GMAC, while HMAC-SHA-1 is legacy.",
+  "scenario": "Both devices are configured for HMAC-SHA-256 with the same truncation length.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-hmac-sha256",
+  "term": "HMAC-SHA-256 in SAv5",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "A MAC algorithm built on SHA-256 whose output is truncated for DNP3 messages. It is the common choice for new deployments.",
+  "field_scenario": "A new RTU fleet is commissioned with HMAC-SHA-256 and legacy SHA-1 disabled.",
+  "troubleshooting": "Interop problems with older devices usually come from them supporting only HMAC-SHA-1; upgrade or isolate them.",
+  "summary": "A MAC algorithm built on SHA-256 whose output is truncated for DNP3 messages. It is the common choice for new deployments.",
+  "scenario": "A new RTU fleet is commissioned with HMAC-SHA-256 and legacy SHA-1 disabled.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-aes-gmac",
+  "term": "AES-GMAC in SAv5",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "A MAC based on AES in Galois mode. It is efficient on devices with AES hardware.",
+  "field_scenario": "A low-power RTU with AES acceleration uses GMAC to cut authentication time.",
+  "troubleshooting": "Never reuse an initialisation vector; reboot loops that reset counters can cause GMAC failures.",
+  "summary": "A MAC based on AES in Galois mode. It is efficient on devices with AES hardware.",
+  "scenario": "A low-power RTU with AES acceleration uses GMAC to cut authentication time.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-session-keys",
+  "term": "Session Keys",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "Short-lived keys, one per direction, used to compute MACs. They are changed periodically and after failures, and are protected by the update key.",
+  "field_scenario": "The master refreshes session keys every hour so a leaked key has limited value.",
+  "troubleshooting": "Authentication failing after a restart usually means session keys were lost; trigger a session key change.",
+  "summary": "Short-lived keys, one per direction, used to compute MACs. They are changed periodically and after failures, and are protected by the update key.",
+  "scenario": "The master refreshes session keys every hour so a leaked key has limited value.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-session-key-change",
+  "term": "Session Key Change (Group 120 v4, v5, v6)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "The master requests status (v4), the outstation reports it (v5), and the master sends new wrapped keys (v6). The outstation then confirms they are in use.",
+  "field_scenario": "After an outstation power cycle, the master runs the exchange to re-establish keys.",
+  "troubleshooting": "A key change that is repeatedly rejected means the update key differs between master and outstation.",
+  "summary": "The master requests status (v4), the outstation reports it (v5), and the master sends new wrapped keys (v6). The outstation then confirms they are in use.",
+  "scenario": "After an outstation power cycle, the master runs the exchange to re-establish keys.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-update-key",
+  "term": "Update Key",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "A long-term key shared by a master user and an outstation that protects session key distribution. It must be loaded securely and rarely changes.",
+  "field_scenario": "Technicians load update keys on RTUs during commissioning through a protected local port.",
+  "troubleshooting": "If all session key changes fail, reload the update key on both ends and verify the user number.",
+  "summary": "A long-term key shared by a master user and an outstation that protects session key distribution. It must be loaded securely and rarely changes.",
+  "scenario": "Technicians load update keys on RTUs during commissioning through a protected local port.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-user-roles",
+  "term": "Users and Roles",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "Each user number has an update key and a role, such as viewer, operator, engineer or security administrator. Roles decide which operations are authorised.",
+  "field_scenario": "An operator can open breakers but cannot change keys or configuration.",
+  "troubleshooting": "Authorisation failures for a valid key point to the user's role lacking permission for that function.",
+  "summary": "Each user number has an update key and a role, such as viewer, operator, engineer or security administrator. Roles decide which operations are authorised.",
+  "scenario": "An operator can open breakers but cannot change keys or configuration.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-error",
+  "term": "Authentication Error (Function Code 33, Group 120 v7)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "A message that reports why authentication failed, with an error code and a timestamp. It tells the sender what to fix.",
+  "field_scenario": "The master logs an authentication error and flags a key mismatch instead of retrying blindly.",
+  "troubleshooting": "Log the error code on each failure; repeated identical codes point to configuration, not noise.",
+  "summary": "A message that reports why authentication failed, with an error code and a timestamp. It tells the sender what to fix.",
+  "scenario": "The master logs an authentication error and flags a key mismatch instead of retrying blindly.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-statistics",
+  "term": "Security Statistics (Groups 121 and 122)",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "Counters of authentication failures, reply timeouts, rekeys and similar activity (Group 121), with events when they change (Group 122). They show attacks or faults.",
+  "field_scenario": "A rising authentication-failure counter on one RTU triggers a security alert.",
+  "troubleshooting": "Poll Group 121 regularly and alarm on sudden increases rather than on absolute values.",
+  "summary": "Counters of authentication failures, reply timeouts, rekeys and similar activity (Group 121), with events when they change (Group 122). They show attacks or faults.",
+  "scenario": "A rising authentication-failure counter on one RTU triggers a security alert.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-replay",
+  "term": "Replay Protection",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "Challenge sequence numbers make each authentication unique, so a captured message cannot be reused. Receivers reject duplicates.",
+  "field_scenario": "A recorded Operate message replayed by an attacker is rejected because its sequence is stale.",
+  "troubleshooting": "Valid messages rejected as replays suggest a device reset its counter; resynchronise with a session key change.",
+  "summary": "Challenge sequence numbers make each authentication unique, so a captured message cannot be reused. Receivers reject duplicates.",
+  "scenario": "A recorded Operate message replayed by an attacker is rejected because its sequence is stale.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-key-rollover",
+  "term": "Key Timeout and Rollover",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "Session keys expire after a time or message count and must be replaced. Both devices enforce the limit.",
+  "field_scenario": "Keys expire hourly and the master renews them before critical operations.",
+  "troubleshooting": "Commands failing at regular intervals match the key timeout; renew keys proactively.",
+  "summary": "Session keys expire after a time or message count and must be replaced. Both devices enforce the limit.",
+  "scenario": "Keys expire hourly and the master renews them before critical operations.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "sa-non-repudiation",
+  "term": "What SAv5 Does Not Provide",
+  "protocol": "DNP3",
+  "category": "security",
+  "definition": "SAv5 authenticates but does not encrypt, so data remains readable. Use a VPN or TLS for confidentiality.",
+  "field_scenario": "A utility pairs SAv5 with an IPsec tunnel on its cellular network.",
+  "troubleshooting": "Do not treat SAv5 alone as protection against eavesdropping on sensitive point data.",
+  "summary": "SAv5 authenticates but does not encrypt, so data remains readable. Use a VPN or TLS for confidentiality.",
+  "scenario": "A utility pairs SAv5 with an IPsec tunnel on its cellular network.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-frame-sync",
+  "term": "Frame Synchronisation Errors",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The receiver finds frames by the 0x05 0x64 start bytes and the length field. Noise can cause it to lose sync and discard data until the next valid start.",
+  "field_scenario": "Bursts of noise on a radio link cause missed polls that recover on their own.",
+  "troubleshooting": "Capture the line and look for start bytes inside corrupted data; fix noise, baud rate or parity.",
+  "summary": "The receiver finds frames by the 0x05 0x64 start bytes and the length field. Noise can cause it to lose sync and discard data until the next valid start.",
+  "scenario": "Bursts of noise on a radio link cause missed polls that recover on their own.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-crc",
+  "term": "CRC Failures",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Each data link block carries a CRC. A failure discards the frame, which then appears as a timeout.",
+  "field_scenario": "A loose antenna connector produces CRC errors that peak when the wind blows.",
+  "troubleshooting": "Rising CRC counts indicate physical layer problems; check cabling, signal level and grounding first.",
+  "summary": "Each data link block carries a CRC. A failure discards the frame, which then appears as a timeout.",
+  "scenario": "A loose antenna connector produces CRC errors that peak when the wind blows.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-link-reset",
+  "term": "Link Layer Reset",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A link reset restores the frame count bit state between two stations. It appears after errors or restarts when link confirms are used.",
+  "field_scenario": "After a radio outage, the master sends a reset link so the next frames are accepted.",
+  "troubleshooting": "Constant resets mean confirms are failing; check addresses, timeouts and the frame count bit handling.",
+  "summary": "A link reset restores the frame count bit state between two stations. It appears after errors or restarts when link confirms are used.",
+  "scenario": "After a radio outage, the master sends a reset link so the next frames are accepted.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-fcb",
+  "term": "Frame Count Bit Mismatch",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The frame count bit alternates on each frame so duplicates can be detected. A mismatch makes the receiver treat a frame as a repeat.",
+  "field_scenario": "After a reconnect, the outstation ignores the first request because the bit was not reset.",
+  "troubleshooting": "Send a link reset to resynchronise, then look for the cause of the lost state.",
+  "summary": "The frame count bit alternates on each frame so duplicates can be detected. A mismatch makes the receiver treat a frame as a repeat.",
+  "scenario": "After a reconnect, the outstation ignores the first request because the bit was not reset.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-iin-overflow",
+  "term": "Event Buffer Overflow (IIN2.3)",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The outstation sets this bit when events were dropped because its buffer was full. Data between the oldest kept event and now may be missing.",
+  "field_scenario": "During a lightning storm a pump station exceeds its event capacity and sets IIN2.3.",
+  "troubleshooting": "Run an integrity poll to resynchronise, then enlarge buffers or shorten the poll interval.",
+  "summary": "The outstation sets this bit when events were dropped because its buffer was full. Data between the oldest kept event and now may be missing.",
+  "scenario": "During a lightning storm a pump station exceeds its event capacity and sets IIN2.3.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-iin-trouble",
+  "term": "Device Trouble (IIN1.6)",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A general fault indication from the outstation. The meaning is vendor-defined.",
+  "field_scenario": "An RTU sets device trouble after an I/O module fails.",
+  "troubleshooting": "Check the device's own diagnostics and event log; the protocol bit does not say what failed.",
+  "summary": "A general fault indication from the outstation. The meaning is vendor-defined.",
+  "scenario": "An RTU sets device trouble after an I/O module fails.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-iin-parameter",
+  "term": "Parameter Error (IIN2.2)",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Set when a request contains a bad parameter, such as an invalid index range or qualifier.",
+  "field_scenario": "A master asks for point 500 on a device that has 400 points.",
+  "troubleshooting": "Compare the requested range against the outstation's point count and qualifier support.",
+  "summary": "Set when a request contains a bad parameter, such as an invalid index range or qualifier.",
+  "scenario": "A master asks for point 500 on a device that has 400 points.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-iin-config",
+  "term": "Corrupt Configuration (IIN2.5)",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Indicates the outstation's configuration is corrupt or invalid.",
+  "field_scenario": "An RTU reports IIN2.5 after an interrupted configuration download.",
+  "troubleshooting": "Reload the configuration from a known good copy and confirm it with the vendor tool.",
+  "summary": "Indicates the outstation's configuration is corrupt or invalid.",
+  "scenario": "An RTU reports IIN2.5 after an interrupted configuration download.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-unsol-collision",
+  "term": "Unsolicited Collision Handling",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "An unsolicited response and a master request can cross on the wire. Devices must handle the overlap using sequence numbers and confirms.",
+  "field_scenario": "A master poll and an unsolicited alarm cross on a half-duplex radio, and one is retried.",
+  "troubleshooting": "Disable unsolicited on shared half-duplex links, or lengthen confirm timeouts and retries.",
+  "summary": "An unsolicited response and a master request can cross on the wire. Devices must handle the overlap using sequence numbers and confirms.",
+  "scenario": "A master poll and an unsolicited alarm cross on a half-duplex radio, and one is retried.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-unsol-retry",
+  "term": "Unsolicited Retry Behaviour",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "An outstation retries an unconfirmed unsolicited response after a timeout, up to a limit. Further events queue behind it.",
+  "field_scenario": "A lost confirm causes the RTU to retransmit the same event three times.",
+  "troubleshooting": "Duplicate events mean confirms are lost; review timeouts and link quality, not the event itself.",
+  "summary": "An outstation retries an unconfirmed unsolicited response after a timeout, up to a limit. Further events queue behind it.",
+  "scenario": "A lost confirm causes the RTU to retransmit the same event three times.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-timeout",
+  "term": "Response Timeout Anomalies",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Responses can fail to arrive in time on slow or busy links. Short timeouts cause false failures and repeated requests.",
+  "field_scenario": "Cellular latency spikes cause the master to report an outstation offline when it is fine.",
+  "troubleshooting": "Measure real round-trip times in a capture and set the timeout above the worst case.",
+  "summary": "Responses can fail to arrive in time on slow or busy links. Short timeouts cause false failures and repeated requests.",
+  "scenario": "Cellular latency spikes cause the master to report an outstation offline when it is fine.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-seq",
+  "term": "Application Sequence Mismatch",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Requests and responses carry a 4-bit sequence number. A response with an unexpected number is ignored.",
+  "field_scenario": "A late response arrives after a retry and is discarded as out of sequence.",
+  "troubleshooting": "Look for retransmissions in a capture; they reveal the timeout that is too short.",
+  "summary": "Requests and responses carry a 4-bit sequence number. A response with an unexpected number is ignored.",
+  "scenario": "A late response arrives after a retry and is discarded as out of sequence.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-transport",
+  "term": "Transport Layer Segment Errors",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Messages are split into segments with first, final and sequence markers. A missing segment makes the whole message fail.",
+  "field_scenario": "A large integrity response loses one segment on a noisy link and is dropped.",
+  "troubleshooting": "Reduce the fragment size on weak links so each message needs fewer segments.",
+  "summary": "Messages are split into segments with first, final and sequence markers. A missing segment makes the whole message fail.",
+  "scenario": "A large integrity response loses one segment on a noisy link and is dropped.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-tcp-halfopen",
+  "term": "Half-Open TCP Connections",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "One side thinks the connection is alive while the other has gone, often after a network change. Data is sent into nowhere.",
+  "field_scenario": "A cellular modem reboots and the master keeps polling a dead socket for minutes.",
+  "troubleshooting": "Use link status keep-alives and TCP keep-alive so dead connections are detected quickly.",
+  "summary": "One side thinks the connection is alive while the other has gone, often after a network change. Data is sent into nowhere.",
+  "scenario": "A cellular modem reboots and the master keeps polling a dead socket for minutes.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "tr-serial-params",
+  "term": "Serial Parameter Mismatch",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Baud rate, parity or stop bits that differ between devices cause garbled frames. Nothing decodes correctly.",
+  "field_scenario": "A replaced radio defaults to 9600 baud while the RTU runs at 19200.",
+  "troubleshooting": "Confirm all serial settings on both ends before suspecting the protocol.",
+  "summary": "Baud rate, parity or stop bits that differ between devices cause garbled frames. Nothing decodes correctly.",
+  "scenario": "A replaced radio defaults to 9600 baud while the RTU runs at 19200.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-suitelink",
+  "term": "SuiteLink Connection Failure",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "SuiteLink is a TCP-based transport between System Platform components and data sources. Failures show as bad quality on items.",
+  "field_scenario": "An HMI loses all tags from one DAServer after a firewall change.",
+  "troubleshooting": "Check the server is running, name resolution works and the SuiteLink port is open between the two machines.",
+  "summary": "SuiteLink is a TCP-based transport between System Platform components and data sources. Failures show as bad quality on items.",
+  "scenario": "An HMI loses all tags from one DAServer after a firewall change.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-opcua-cert",
+  "term": "OPC UA Certificate Errors",
+  "protocol": "Aveva Telemetry",
+  "category": "security",
+  "definition": "OPC UA clients and servers exchange certificates and each must trust the other's. Untrusted, expired or mismatched certificates stop the connection.",
+  "field_scenario": "After a certificate renewal on the server, the client refuses to connect.",
+  "troubleshooting": "Move the new certificate into the client's trusted list and check the host name matches the certificate.",
+  "summary": "OPC UA clients and servers exchange certificates and each must trust the other's. Untrusted, expired or mismatched certificates stop the connection.",
+  "scenario": "After a certificate renewal on the server, the client refuses to connect.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-opcua-policy",
+  "term": "OPC UA Security Policy Mismatch",
+  "protocol": "Aveva Telemetry",
+  "category": "security",
+  "definition": "The client and server must share a security policy and message mode. A mismatch gives a secure channel error.",
+  "field_scenario": "A server only offers Basic256Sha256 with signing but the client requests None.",
+  "troubleshooting": "Align the endpoint policy and mode on both sides, preferring signed and encrypted.",
+  "summary": "The client and server must share a security policy and message mode. A mismatch gives a secure channel error.",
+  "scenario": "A server only offers Basic256Sha256 with signing but the client requests None.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-daserver-watchdog",
+  "term": "DAServer Watchdog Timeout",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "A watchdog expires when the DAServer receives no valid response from a device within its limit. It then marks the device's items bad.",
+  "field_scenario": "A radio outage trips the watchdog and the station's values go bad on the HMI.",
+  "troubleshooting": "Check device communications first; only extend the watchdog if the link is legitimately slow.",
+  "summary": "A watchdog expires when the DAServer receives no valid response from a device within its limit. It then marks the device's items bad.",
+  "scenario": "A radio outage trips the watchdog and the station's values go bad on the HMI.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-bad-quality",
+  "term": "Bad Quality on IO Addresses",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Items report bad quality when the address is wrong, the device is unreachable or the driver is not connected. The quality subcode helps locate the cause.",
+  "field_scenario": "A new tag shows bad quality because its item reference has a typo.",
+  "troubleshooting": "Read the same item in the driver's diagnostic client; if it works there the problem is in the application mapping.",
+  "summary": "Items report bad quality when the address is wrong, the device is unreachable or the driver is not connected. The quality subcode helps locate the cause.",
+  "scenario": "A new tag shows bad quality because its item reference has a typo.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-item-path",
+  "term": "Item Reference Syntax Errors",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "An item reference must name the device, the group and the point exactly as the driver expects. A small typo returns no data.",
+  "field_scenario": "A pasted reference with a trailing space never resolves.",
+  "troubleshooting": "Copy references from the driver's browser instead of typing them.",
+  "summary": "An item reference must name the device, the group and the point exactly as the driver expects. A small typo returns no data.",
+  "scenario": "A pasted reference with a trailing space never resolves.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-dcom",
+  "term": "Classic OPC and DCOM Failures",
+  "protocol": "Aveva Telemetry",
+  "category": "security",
+  "definition": "Classic OPC relies on DCOM permissions and open ports. Hardening or firewalls often break it.",
+  "field_scenario": "After a Windows update, a classic OPC client can no longer browse a server on another machine.",
+  "troubleshooting": "Review DCOM launch and access permissions and the firewall rules, or move to OPC UA.",
+  "summary": "Classic OPC relies on DCOM permissions and open ports. Hardening or firewalls often break it.",
+  "scenario": "After a Windows update, a classic OPC client can no longer browse a server on another machine.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-time-sync",
+  "term": "Time Synchronisation Diagnostics",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Servers, historians and devices must agree on time. Drift breaks event order and historian storage.",
+  "field_scenario": "Alarms appear before the events that caused them because one server is minutes off.",
+  "troubleshooting": "Point every machine at the same time source and compare clocks before analysing logs.",
+  "summary": "Servers, historians and devices must agree on time. Drift breaks event order and historian storage.",
+  "scenario": "Alarms appear before the events that caused them because one server is minutes off.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "avt-update-rate",
+  "term": "Group Update Rate Overload",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Too many items on a fast update rate can overload a driver or a slow link, making values arrive late or go bad.",
+  "field_scenario": "A trend page requests hundreds of items every second and the radio link saturates.",
+  "troubleshooting": "Move non-critical items to slower update groups and remove unused items from active scans.",
+  "summary": "Too many items on a fast update rate can overload a driver or a slow link, making values arrive late or go bad.",
+  "scenario": "A trend page requests hundreds of items every second and the radio link saturates.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ }
+]
