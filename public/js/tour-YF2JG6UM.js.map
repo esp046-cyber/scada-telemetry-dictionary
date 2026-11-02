@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/components/tour.ts"],
+  "sourcesContent": ["const STEPS = ['Press / to search. Suggestions appear as you type.', 'Tap the star to save a term. Saved terms work offline.', 'Press F for focus mode, D for dark mode, or tap Mic and say \"open unsolicited response\".', 'Terms show the essentials first. Choose \"Show integration and troubleshooting\" for the deep dive.'];\nexport function runTour(root: HTMLElement, done: () => void): void {\n  let i = 0;\n  const show = (): void => {\n    root.innerHTML = `<div class=\"tour\" role=\"dialog\" aria-modal=\"true\" aria-label=\"Quick-start tour\"><p>${STEPS[i]}</p><button class=\"btn\" id=\"next\">${i === STEPS.length - 1 ? 'Start' : 'Next'}</button></div>`;\n    root.querySelector<HTMLButtonElement>('#next')?.addEventListener('click', () => { if (++i < STEPS.length) show(); else { root.innerHTML = ''; done(); } });\n    root.querySelector<HTMLButtonElement>('#next')?.focus();\n  };\n  show();\n}\n"],
+  "mappings": "AAAA,IAAMA,EAAQ,CAAC,qDAAsD,yDAA0D,2FAA4F,mGAAmG,EACvT,SAASC,EAAQC,EAAmBC,EAAwB,CACjE,IAAIC,EAAI,EACFC,EAAO,IAAY,CACvBH,EAAK,UAAY,sFAAsFF,EAAMI,CAAC,CAAC,qCAAqCA,IAAMJ,EAAM,OAAS,EAAI,QAAU,MAAM,kBAC7LE,EAAK,cAAiC,OAAO,GAAG,iBAAiB,QAAS,IAAM,CAAM,EAAEE,EAAIJ,EAAM,OAAQK,EAAK,GAAUH,EAAK,UAAY,GAAIC,EAAK,EAAK,CAAC,EACzJD,EAAK,cAAiC,OAAO,GAAG,MAAM,CACxD,EACAG,EAAK,CACP",
+  "names": ["STEPS", "runTour", "root", "done", "i", "show"]
+}
