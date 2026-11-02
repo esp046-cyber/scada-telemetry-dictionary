@@ -12,12 +12,12 @@ let protocol = 'All', industry = 'All', openId: string | null = null;
 
 async function boot(): Promise<void> {
   try {
-    const r = await fetch('/terms.json'); if (!r.ok) throw new Error(String(r.status));
+    const r = await fetch('./terms.json'); if (!r.ok) throw new Error(String(r.status));
     terms = (await r.json()) as Term[];
   } catch { $('#grid').innerHTML = '<p role="alert">Could not load the dictionary. Reconnect once to cache it for offline use.</p>'; return; }
   initSentry();
   applyPrefs(); fillFilters(); render(); dashboard(); wire();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => undefined);
   if (!localStorage.getItem('agac-toured')) import('../components/tour').then(m => m.runTour($('#overlay'), () => localStorage.setItem('agac-toured', '1')));
 }
 // Set a DSN via <meta name="sentry-dsn">; the Sentry chunk loads only when configured.
