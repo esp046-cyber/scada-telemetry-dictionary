@@ -1892,5 +1892,1553 @@
    "Oil & Gas"
   ],
   "level": "essential"
+ },
+ {
+  "id": "net-multidrop-poll",
+  "term": "Multi-Drop Poll Scheduling",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "On a shared line the master polls outstations one after another, so total cycle time grows with every added site. Priority sites can be polled more often.",
+  "field_scenario": "Twelve RTUs on one radio take 20 seconds per cycle, so the three critical sites are polled twice per cycle.",
+  "troubleshooting": "If cycle time is too long, split the network into two channels or switch quiet sites to unsolicited reporting.",
+  "summary": "On a shared line the master polls outstations one after another, so total cycle time grows with every added site. Priority sites can be polled more often.",
+  "scenario": "Twelve RTUs on one radio take 20 seconds per cycle, so the three critical sites are polled twice per cycle.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-leased-line",
+  "term": "Leased-Line Modems",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Dedicated copper or fibre circuits carry serial DNP3 through modems. They give stable latency but need matching speed and framing settings.",
+  "field_scenario": "A pipeline uses 4-wire leased circuits to link compressor stations to the control centre.",
+  "troubleshooting": "Garbled data on a leased line usually means mismatched baud or parity, or a line level that is too low.",
+  "summary": "Dedicated copper or fibre circuits carry serial DNP3 through modems. They give stable latency but need matching speed and framing settings.",
+  "scenario": "A pipeline uses 4-wire leased circuits to link compressor stations to the control centre.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-two-four-wire",
+  "term": "2-Wire vs 4-Wire Modems",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "2-wire links are half-duplex, so only one side transmits at a time. 4-wire links are full-duplex and suit unsolicited reporting.",
+  "field_scenario": "A 2-wire multi-drop network disables unsolicited reporting to avoid transmit clashes.",
+  "troubleshooting": "Lost frames on a 2-wire line often come from both ends sending at once; use polling only.",
+  "summary": "2-wire links are half-duplex, so only one side transmits at a time. 4-wire links are full-duplex and suit unsolicited reporting.",
+  "scenario": "A 2-wire multi-drop network disables unsolicited reporting to avoid transmit clashes.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-rts-cts",
+  "term": "RTS/CTS Keying Delay",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A radio or modem needs time after it is keyed before data can be sent. The RTS-to-CTS delay must be at least that long.",
+  "field_scenario": "A master sends the first bytes before the radio is ready, and the start of each frame is lost.",
+  "troubleshooting": "Lengthen the RTS delay until the first frame is received complete, then add a small margin.",
+  "summary": "A radio or modem needs time after it is keyed before data can be sent. The RTS-to-CTS delay must be at least that long.",
+  "scenario": "A master sends the first bytes before the radio is ready, and the start of each frame is lost.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-fade-margin",
+  "term": "Radio Fade Margin",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The extra signal strength above the receiver's minimum, kept to survive weather and obstruction. A low margin gives intermittent errors.",
+  "field_scenario": "A link that works in summer drops frames in heavy rain because its margin is only a few dB.",
+  "troubleshooting": "Measure received signal strength against the radio's sensitivity and raise it with a better antenna or mast height.",
+  "summary": "The extra signal strength above the receiver's minimum, kept to survive weather and obstruction. A low margin gives intermittent errors.",
+  "scenario": "A link that works in summer drops frames in heavy rain because its margin is only a few dB.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-repeaters",
+  "term": "Repeaters and Latency",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Each repeater hop adds delay and can reduce throughput on shared channels. Timeouts must cover the full path.",
+  "field_scenario": "A hill-top repeater doubles round-trip time for far sites, and their polls begin to time out.",
+  "troubleshooting": "Increase response timeouts for repeated paths and reduce poll frequency for those sites.",
+  "summary": "Each repeater hop adds delay and can reduce throughput on shared channels. Timeouts must cover the full path.",
+  "scenario": "A hill-top repeater doubles round-trip time for far sites, and their polls begin to time out.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-cellular-apn",
+  "term": "Cellular APN Configuration",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "The access point name decides how a modem reaches the network. Private APNs with static addresses allow the master to reach RTUs directly.",
+  "field_scenario": "All RTUs sit on a private APN so the master connects to fixed addresses behind a firewall.",
+  "troubleshooting": "If an RTU cannot be reached, confirm its APN, its assigned address and any carrier firewall rules.",
+  "summary": "The access point name decides how a modem reaches the network. Private APNs with static addresses allow the master to reach RTUs directly.",
+  "scenario": "All RTUs sit on a private APN so the master connects to fixed addresses behind a firewall.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-cellular-latency",
+  "term": "Cellular Latency and Jitter",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Mobile networks vary in round-trip time, with occasional long delays. Timers tuned for serial links are often too short.",
+  "field_scenario": "A 4G RTU normally answers in 150 ms but sometimes takes over 2 seconds.",
+  "troubleshooting": "Measure the worst-case delay over a day and set confirm timeouts well above it.",
+  "summary": "Mobile networks vary in round-trip time, with occasional long delays. Timers tuned for serial links are often too short.",
+  "scenario": "A 4G RTU normally answers in 150 ms but sometimes takes over 2 seconds.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-nat-timeout",
+  "term": "NAT Timeout and IP Changes",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Carrier NAT removes idle connections, and dynamic addresses can change on reconnect. Both break links silently.",
+  "field_scenario": "An RTU stops answering after 10 quiet minutes because the carrier dropped its mapping.",
+  "troubleshooting": "Send keep-alives more often than the NAT timeout, or use a static private APN.",
+  "summary": "Carrier NAT removes idle connections, and dynamic addresses can change on reconnect. Both break links silently.",
+  "scenario": "An RTU stops answering after 10 quiet minutes because the carrier dropped its mapping.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-udp-tcp",
+  "term": "DNP3 over UDP vs TCP",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "TCP gives reliable ordered delivery with connection state. UDP is connectionless, so lost datagrams must be recovered by DNP3's own confirms and retries.",
+  "field_scenario": "A utility uses UDP on a low-bandwidth link where TCP handshakes and retransmits were too costly.",
+  "troubleshooting": "On UDP, missing responses are not reported by the network; rely on application timeouts and confirms.",
+  "summary": "TCP gives reliable ordered delivery with connection state. UDP is connectionless, so lost datagrams must be recovered by DNP3's own confirms and retries.",
+  "scenario": "A utility uses UDP on a low-bandwidth link where TCP handshakes and retransmits were too costly.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-udp-broadcast",
+  "term": "UDP Broadcast and Multicast Use",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "UDP allows a master to send one datagram to many outstations. Outstations do not acknowledge broadcast data.",
+  "field_scenario": "A time write is sent to every RTU in one datagram.",
+  "troubleshooting": "Verify each outstation's time afterwards because no acknowledgement is returned.",
+  "summary": "UDP allows a master to send one datagram to many outstations. Outstations do not acknowledge broadcast data.",
+  "scenario": "A time write is sent to every RTU in one datagram.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-dual-endpoint",
+  "term": "Dual-Endpoint Connections",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Both devices can listen and connect, and either may start the TCP connection. This helps when one side is behind a firewall.",
+  "field_scenario": "An RTU behind carrier NAT opens the connection to the master, which cannot reach it directly.",
+  "troubleshooting": "Two simultaneous connections mean both sides connected at once; allow only one and close the other.",
+  "summary": "Both devices can listen and connect, and either may start the TCP connection. This helps when one side is behind a firewall.",
+  "scenario": "An RTU behind carrier NAT opens the connection to the master, which cannot reach it directly.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-keepalive",
+  "term": "Keep-Alive Timers",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Link status requests or TCP keep-alives confirm that the peer is alive. The interval should be shorter than any idle timeout on the path.",
+  "field_scenario": "A 30-second keep-alive keeps a firewall session open between quiet polls.",
+  "troubleshooting": "Dead peers detected too slowly need a shorter keep-alive and a smaller missed-reply count.",
+  "summary": "Link status requests or TCP keep-alives confirm that the peer is alive. The interval should be shorter than any idle timeout on the path.",
+  "scenario": "A 30-second keep-alive keeps a firewall session open between quiet polls.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-reserved-addresses",
+  "term": "Reserved Link Addresses (0xFFFC-0xFFFF)",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Addresses near the top of the range are reserved. 0xFFFC is the self-address in newer versions, and 0xFFFD to 0xFFFF are broadcast addresses.",
+  "field_scenario": "A configuration tool refuses 0xFFFE as a station address because it is reserved.",
+  "troubleshooting": "Never assign addresses 0xFFF0 and above to stations; use the normal range.",
+  "summary": "Addresses near the top of the range are reserved. 0xFFFC is the self-address in newer versions, and 0xFFFD to 0xFFFF are broadcast addresses.",
+  "scenario": "A configuration tool refuses 0xFFFE as a station address because it is reserved.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-terminal-server",
+  "term": "Serial-to-IP Terminal Servers",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A device that carries serial DNP3 over an IP network. Its buffering and timing settings affect framing.",
+  "field_scenario": "Legacy serial RTUs are connected to an IP backbone through terminal servers at each site.",
+  "troubleshooting": "Split frames or delays mean the server's packing timer or buffer size is wrong for DNP3.",
+  "summary": "A device that carries serial DNP3 over an IP network. Its buffering and timing settings affect framing.",
+  "scenario": "Legacy serial RTUs are connected to an IP backbone through terminal servers at each site.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-satellite",
+  "term": "Satellite Link Latency",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Geostationary satellite links add around half a second each way. Request-response protocols become slow and timeouts must grow.",
+  "field_scenario": "A remote wellhead on VSAT uses unsolicited reporting and long confirm timeouts.",
+  "troubleshooting": "Increase timeouts well above the round trip and avoid chatty polling.",
+  "summary": "Geostationary satellite links add around half a second each way. Request-response protocols become slow and timeouts must grow.",
+  "scenario": "A remote wellhead on VSAT uses unsolicited reporting and long confirm timeouts.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "net-tcp-retrans",
+  "term": "TCP Retransmission Delays",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Lost packets are retransmitted after a growing delay, which stalls DNP3 traffic. Timeouts must allow for it on poor links.",
+  "field_scenario": "A poor cellular signal leads to multi-second stalls and then a burst of data.",
+  "troubleshooting": "Capture traffic and look for retransmissions; fix signal quality rather than only lengthening timers.",
+  "summary": "Lost packets are retransmitted after a growing delay, which stalls DNP3 traffic. Timeouts must allow for it on poor links.",
+  "scenario": "A poor cellular signal leads to multi-second stalls and then a burst of data.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-naming",
+  "term": "ClearSCADA and Geo SCADA Lineage",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "The telemetry server platform was known as ClearSCADA, then Geo SCADA, and is now offered under the AVEVA name. Older documentation uses the earlier names.",
+  "field_scenario": "An engineer finds the driver guide under the ClearSCADA title for a current installation.",
+  "troubleshooting": "When a document seems outdated, search by both old and new product names before assuming a feature is missing.",
+  "summary": "The telemetry server platform was known as ClearSCADA, then Geo SCADA, and is now offered under the AVEVA name. Older documentation uses the earlier names.",
+  "scenario": "An engineer finds the driver guide under the ClearSCADA title for a current installation.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-outstation-addressing",
+  "term": "Outstation Address Settings",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Each outstation object holds the device's link address and the server's address, which must match the device's own settings.",
+  "field_scenario": "A replaced RTU keeps its old address so the server object needs no change.",
+  "troubleshooting": "An outstation that never answers often has its link address or master address swapped; check both.",
+  "summary": "Each outstation object holds the device's link address and the server's address, which must match the device's own settings.",
+  "scenario": "A replaced RTU keeps its old address so the server object needs no change.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-templates",
+  "term": "Outstation Templates",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Templates define points and settings once and apply them to many outstations of the same type. A change to the template flows to all instances.",
+  "field_scenario": "A standard pump station template is used for forty sites.",
+  "troubleshooting": "If an instance differs from the template, check for a local override on that outstation.",
+  "summary": "Templates define points and settings once and apply them to many outstations of the same type. A change to the template flows to all instances.",
+  "scenario": "A standard pump station template is used for forty sites.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-scan-groups",
+  "term": "Scan Configuration and Groups",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Scan settings define which data classes are polled and how often. Points can be grouped so critical data is read more frequently.",
+  "field_scenario": "Event polling runs every 10 seconds, with a slower background integrity scan.",
+  "troubleshooting": "Overlong scans on a slow channel mean too many points are in the fast group; move some to slower groups.",
+  "summary": "Scan settings define which data classes are polled and how often. Points can be grouped so critical data is read more frequently.",
+  "scenario": "Event polling runs every 10 seconds, with a slower background integrity scan.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-channel-redundancy",
+  "term": "Channel Redundancy",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "An outstation can have a main and a standby communications path. The server switches when the main path fails.",
+  "field_scenario": "A site has a radio as main and a cellular link as standby.",
+  "troubleshooting": "If failover never happens, check the standby channel is enabled and its outstation address is configured.",
+  "summary": "An outstation can have a main and a standby communications path. The server switches when the main path fails.",
+  "scenario": "A site has a radio as main and a cellular link as standby.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-comm-stats",
+  "term": "Communication Statistics",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Counters on channels and outstations record messages sent, responses received and errors. They reveal link quality over time.",
+  "field_scenario": "A rising error count on one channel exposes a failing radio before it fails completely.",
+  "troubleshooting": "Trend the error ratio per channel, and investigate the worst performers first.",
+  "summary": "Counters on channels and outstations record messages sent, responses received and errors. They reveal link quality over time.",
+  "scenario": "A rising error count on one channel exposes a failing radio before it fails completely.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-offline-alarm",
+  "term": "Outstation Communications Failure Alarm",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "The server raises an alarm when an outstation stops answering after retries. Points can be marked bad at the same time.",
+  "field_scenario": "A site loses power and the control room receives a communications failure alarm.",
+  "troubleshooting": "Tune retries so brief radio glitches do not raise alarms while real outages still do.",
+  "summary": "The server raises an alarm when an outstation stops answering after retries. Points can be marked bad at the same time.",
+  "scenario": "A site loses power and the control room receives a communications failure alarm.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-time-sync",
+  "term": "Outstation Time Synchronisation from Server",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "The server writes the correct time to outstations at intervals or when they ask for it. Accurate stamps keep event order meaningful.",
+  "field_scenario": "The server syncs all RTUs every hour and whenever the Need Time bit appears.",
+  "troubleshooting": "If events are mis-ordered, check the server's own clock source first.",
+  "summary": "The server writes the correct time to outstations at intervals or when they ask for it. Accurate stamps keep event order meaningful.",
+  "scenario": "The server syncs all RTUs every hour and whenever the Need Time bit appears.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-flow-computer",
+  "term": "Flow Computer Interfaces",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Flow computers report volumes, pressures and temperatures through protocols such as Modbus or DNP3. Registers must be mapped carefully.",
+  "field_scenario": "A gas meter run reports corrected flow and daily totals to the server.",
+  "troubleshooting": "Wrong totals usually come from a register map error or a data type mismatch, not the meter.",
+  "summary": "Flow computers report volumes, pressures and temperatures through protocols such as Modbus or DNP3. Registers must be mapped carefully.",
+  "scenario": "A gas meter run reports corrected flow and daily totals to the server.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-float-registers",
+  "term": "Floating-Point Register Pairs",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A 32-bit float stored across two 16-bit registers needs the right word order. The wrong order gives absurd values.",
+  "field_scenario": "A pressure reads 1.2E-38 until the word order is swapped.",
+  "troubleshooting": "If values look random, try the other word and byte order.",
+  "summary": "A 32-bit float stored across two 16-bit registers needs the right word order. The wrong order gives absurd values.",
+  "scenario": "A pressure reads 1.2E-38 until the word order is swapped.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "gs-dnp3-driver-unsol",
+  "term": "Unsolicited Setting in the Server Driver",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "The driver can enable unsolicited reporting for chosen classes at start-up. It must match the outstation's own settings.",
+  "field_scenario": "Class 1 unsolicited is enabled for alarms, with class polls as a backup.",
+  "troubleshooting": "Events missing after a restart mean the driver did not re-enable unsolicited; check the start-up sequence.",
+  "summary": "The driver can enable unsolicited reporting for chosen classes at start-up. It must match the outstation's own settings.",
+  "scenario": "Class 1 unsolicited is enabled for alarms, with class polls as a backup.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-16-vs-32",
+  "term": "16-Bit vs 32-Bit Analog Values",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "A 16-bit value has 65,536 steps and a 32-bit value has about 4.3 billion. Sixteen bits is smaller on the wire, but resolution and range are limited.",
+  "field_scenario": "A 0 to 16 bar sensor has resolution of about 0.00024 bar at 16 bits, which is ample.",
+  "troubleshooting": "Values that clip or step visibly need 32-bit or floating point.",
+  "summary": "A 16-bit value has 65,536 steps and a 32-bit value has about 4.3 billion. Sixteen bits is smaller on the wire, but resolution and range are limited.",
+  "scenario": "A 0 to 16 bar sensor has resolution of about 0.00024 bar at 16 bits, which is ample.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-signed-range",
+  "term": "Signed Integer Ranges",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Analog integer variations are signed. 16-bit spans -32768 to 32767, and 32-bit spans about plus or minus 2.1 billion.",
+  "field_scenario": "A raw reading of 40000 wraps negative when read as a signed 16-bit value.",
+  "troubleshooting": "Negative values on a unipolar signal mean the range exceeded the signed limit; use 32-bit or scale down.",
+  "summary": "Analog integer variations are signed. 16-bit spans -32768 to 32767, and 32-bit spans about plus or minus 2.1 billion.",
+  "scenario": "A raw reading of 40000 wraps negative when read as a signed 16-bit value.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-float",
+  "term": "Single and Double Precision Floats",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Single precision gives about seven significant digits and double about fifteen. Floats avoid scaling but waste bytes on small ranges.",
+  "field_scenario": "A totaliser in float stops counting small increments once it is large.",
+  "troubleshooting": "Use 32-bit integer counters for totals, since floats lose small steps at large values.",
+  "summary": "Single precision gives about seven significant digits and double about fifteen. Floats avoid scaling but waste bytes on small ranges.",
+  "scenario": "A totaliser in float stops counting small increments once it is large.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-nan",
+  "term": "NaN and Infinity Handling",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Floating-point values can hold not-a-number or infinity after a bad calculation. They should be flagged as bad quality, not displayed as numbers.",
+  "field_scenario": "A divide-by-zero in an RTU produces NaN and the trend shows a gap.",
+  "troubleshooting": "Treat NaN as bad quality in the master and fix the source calculation.",
+  "summary": "Floating-point values can hold not-a-number or infinity after a bad calculation. They should be flagged as bad quality, not displayed as numbers.",
+  "scenario": "A divide-by-zero in an RTU produces NaN and the trend shows a gap.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-endianness",
+  "term": "Byte Order in DNP3",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "DNP3 sends multi-byte values with the least significant byte first. Other protocols may differ, which matters in gateways.",
+  "field_scenario": "A protocol converter bridges Modbus and DNP3 and must swap byte order correctly.",
+  "troubleshooting": "Values that are byte-swapped multiples such as 256 times too large indicate an endianness mistake.",
+  "summary": "DNP3 sends multi-byte values with the least significant byte first. Other protocols may differ, which matters in gateways.",
+  "scenario": "A protocol converter bridges Modbus and DNP3 and must swap byte order correctly.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-time48",
+  "term": "48-Bit Millisecond Timestamps",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Absolute time is the number of milliseconds since 1970 in 48 bits. It is always UTC.",
+  "field_scenario": "An event stamped in 2026 decodes correctly only when read as UTC milliseconds.",
+  "troubleshooting": "A time error of whole hours means local time was applied where UTC was expected.",
+  "summary": "Absolute time is the number of milliseconds since 1970 in 48 bits. It is always UTC.",
+  "scenario": "An event stamped in 2026 decodes correctly only when read as UTC milliseconds.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-scaling-offset",
+  "term": "Linear Scaling with Offset",
+  "protocol": "DNP3",
+  "category": "tag",
+  "definition": "Engineering value equals raw times a gain plus an offset. Both must be agreed between device and master.",
+  "field_scenario": "A temperature of -40 to 160 degrees maps to raw 0 to 10000 using a gain and offset.",
+  "troubleshooting": "A constant shift in readings points to an offset error, while a proportional error points to the gain.",
+  "summary": "Engineering value equals raw times a gain plus an offset. Both must be agreed between device and master.",
+  "scenario": "A temperature of -40 to 160 degrees maps to raw 0 to 10000 using a gain and offset.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-deadband-abs",
+  "term": "Absolute Deadband",
+  "protocol": "DNP3",
+  "category": "tag",
+  "definition": "An event is reported when the value differs from the last reported one by more than a fixed amount in engineering units. DNP3's deadband object works this way.",
+  "field_scenario": "A level point reports whenever it changes by more than 0.05 metres.",
+  "troubleshooting": "Choose a deadband relative to sensor noise, or it will chatter.",
+  "summary": "An event is reported when the value differs from the last reported one by more than a fixed amount in engineering units. DNP3's deadband object works this way.",
+  "scenario": "A level point reports whenever it changes by more than 0.05 metres.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-deadband-pct",
+  "term": "Percentage Deadband",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The threshold is a percentage of the point's span, so it scales with range. It is often calculated in the master or historian.",
+  "field_scenario": "A 0 to 1000 point with 1% deadband reports at changes of 10 units.",
+  "troubleshooting": "If small readings never report, the percentage of the full span is too large for that range.",
+  "summary": "The threshold is a percentage of the point's span, so it scales with range. It is often calculated in the master or historian.",
+  "scenario": "A 0 to 1000 point with 1% deadband reports at changes of 10 units.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-delta-poll",
+  "term": "Delta Polling",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Only changes since the last poll are requested using event classes, rather than rereading all static data. It reduces bandwidth.",
+  "field_scenario": "Event polls every 5 seconds carry only changed points, with a static read every 30 minutes.",
+  "troubleshooting": "If values drift from the field, run an integrity poll, since delta polls can miss events lost to overflow.",
+  "summary": "Only changes since the last poll are requested using event classes, rather than rereading all static data. It reduces bandwidth.",
+  "scenario": "Event polls every 5 seconds carry only changed points, with a static read every 30 minutes.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-freeze-clear",
+  "term": "Counter Freeze and Clear Sequence",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "A freeze copies the running count to a frozen counter, and a clear also resets the running count to zero. The master then reads the frozen values.",
+  "field_scenario": "At each billing interval, the master freezes counters and reads the frozen group while counting continues.",
+  "troubleshooting": "Lost billing data after Freeze and Clear means a read failed; use freeze without clear where possible.",
+  "summary": "A freeze copies the running count to a frozen counter, and a clear also resets the running count to zero. The master then reads the frozen values.",
+  "scenario": "At each billing interval, the master freezes counters and reads the frozen group while counting continues.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-counter-rollover",
+  "term": "Counter Rollover Arithmetic",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "When a counter passes its maximum it wraps to zero. Usage is computed modulo the counter size.",
+  "field_scenario": "A 32-bit pulse counter wraps after about 4.29 billion pulses.",
+  "troubleshooting": "Use modular subtraction and check the rollover flag so one wrap does not produce a negative usage.",
+  "summary": "When a counter passes its maximum it wraps to zero. Usage is computed modulo the counter size.",
+  "scenario": "A 32-bit pulse counter wraps after about 4.29 billion pulses.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-ao-scaling",
+  "term": "Analog Output Setpoint Scaling",
+  "protocol": "DNP3",
+  "category": "object-group",
+  "definition": "Setpoints are sent as raw integers or floats and must be converted using the device's range. Limits should be enforced on both sides.",
+  "field_scenario": "A 0 to 100% valve setpoint is sent as a raw value between 0 and 10000.",
+  "troubleshooting": "A setpoint that lands at the wrong position is usually a range mismatch between HMI and device.",
+  "summary": "Setpoints are sent as raw integers or floats and must be converted using the device's range. Limits should be enforced on both sides.",
+  "scenario": "A 0 to 100% valve setpoint is sent as a raw value between 0 and 10000.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-integer-float",
+  "term": "Integer to Float Conversion Loss",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Converting large integers to single-precision floats loses low-order digits. Totalised values can drift.",
+  "field_scenario": "A 32-bit counter converted to float stops showing the last digits.",
+  "troubleshooting": "Keep totals in integer or double types and convert only for display.",
+  "summary": "Converting large integers to single-precision floats loses low-order digits. Totalised values can drift.",
+  "scenario": "A 32-bit counter converted to float stops showing the last digits.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "dt-rounding",
+  "term": "Display Rounding vs Stored Precision",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "The decimals shown on screen need not match what is stored. Reports and calculations should use the full value.",
+  "field_scenario": "An operator sees 12.3 while the historian stores 12.3456.",
+  "troubleshooting": "Compare raw stored values when numbers disagree between screens and reports.",
+  "summary": "The decimals shown on screen need not match what is stored. Reports and calculations should use the full value.",
+  "scenario": "An operator sees 12.3 while the historian stores 12.3456.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-loop-check",
+  "term": "Loop Check",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A test that proves a signal is correct from the field device through the RTU to the SCADA display. Each loop is signed off only when every stage matches.",
+  "field_scenario": "A technician simulates 12 mA at a level transmitter and the HMI shows 50 percent.",
+  "troubleshooting": "If the end value is wrong, test stage by stage: field signal, RTU input, DNP3 value, then SCADA scaling.",
+  "summary": "A test that proves a signal is correct from the field device through the RTU to the SCADA display. Each loop is signed off only when every stage matches.",
+  "scenario": "A technician simulates 12 mA at a level transmitter and the HMI shows 50 percent.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-420-scaling",
+  "term": "4-20 mA Scaling Verification",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "4 mA corresponds to 0 percent of range and 20 mA to 100 percent, so 12 mA is 50 percent. Check at least 0, 50 and 100 percent.",
+  "field_scenario": "For a 0 to 16 bar transmitter, 8 mA must read 4 bar on the HMI.",
+  "troubleshooting": "A constant offset points to the zero scaling, and a proportional error points to the span.",
+  "summary": "4 mA corresponds to 0 percent of range and 20 mA to 100 percent, so 12 mA is 50 percent. Check at least 0, 50 and 100 percent.",
+  "scenario": "For a 0 to 16 bar transmitter, 8 mA must read 4 bar on the HMI.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-live-zero",
+  "term": "Live Zero",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Using 4 mA as zero means a reading of 0 mA is clearly a fault, such as a broken wire, not a real zero value.",
+  "field_scenario": "A level transmitter with a cut cable shows 0 mA and the RTU flags the point as bad.",
+  "troubleshooting": "If a dead loop reads as zero without alarm, enable under-range detection on the input.",
+  "summary": "Using 4 mA as zero means a reading of 0 mA is clearly a fault, such as a broken wire, not a real zero value.",
+  "scenario": "A level transmitter with a cut cable shows 0 mA and the RTU flags the point as bad.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-ne43",
+  "term": "NAMUR NE43 Fault Levels",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "NE43 treats about 3.8 to 20.5 mA as the valid range and signals below 3.6 mA or above 21 mA as failures. Many transmitters use these for diagnostics.",
+  "field_scenario": "A transmitter fails and drives 3.5 mA, which the RTU marks as bad quality.",
+  "troubleshooting": "If failures are not flagged, confirm the RTU's under- and over-range thresholds are set.",
+  "summary": "NE43 treats about 3.8 to 20.5 mA as the valid range and signals below 3.6 mA or above 21 mA as failures. Many transmitters use these for diagnostics.",
+  "scenario": "A transmitter fails and drives 3.5 mA, which the RTU marks as bad quality.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-loop-injection",
+  "term": "Loop Simulation by Current Injection",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A calibrator injects known currents at the field terminals to test the whole input path. It avoids needing the process to move.",
+  "field_scenario": "Five currents from 4 to 20 mA are injected at the junction box and each value is recorded.",
+  "troubleshooting": "Values that disagree only at one point suggest a faulty input channel, not the transmitter.",
+  "summary": "A calibrator injects known currents at the field terminals to test the whole input path. It avoids needing the process to move.",
+  "scenario": "Five currents from 4 to 20 mA are injected at the junction box and each value is recorded.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-shunt",
+  "term": "Shunt Resistor Verification",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A shunt converts loop current into voltage, for example 250 ohms gives 1 to 5 V for 4 to 20 mA. Its value must match the input's configuration.",
+  "field_scenario": "An RTU input expecting 250 ohms reads wrong when a 500 ohm resistor is fitted.",
+  "troubleshooting": "Measure the resistor and compare the voltage across it with the expected value.",
+  "summary": "A shunt converts loop current into voltage, for example 250 ohms gives 1 to 5 V for 4 to 20 mA. Its value must match the input's configuration.",
+  "scenario": "An RTU input expecting 250 ohms reads wrong when a 500 ohm resistor is fitted.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-loop-power",
+  "term": "Loop Power and Burden",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A 2-wire transmitter needs enough supply voltage after the voltage drop of the loop's resistance. Too much burden stops it reaching 20 mA.",
+  "field_scenario": "A loop with long cable and extra indicators clips at 18 mA at full scale.",
+  "troubleshooting": "Measure supply voltage at the transmitter and compare it with its minimum operating voltage.",
+  "summary": "A 2-wire transmitter needs enough supply voltage after the voltage drop of the loop's resistance. Too much burden stops it reaching 20 mA.",
+  "scenario": "A loop with long cable and extra indicators clips at 18 mA at full scale.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-hart",
+  "term": "HART Overlay",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "HART adds digital communication on top of a 4-20 mA signal for configuration and diagnostics. It does not change the analog value.",
+  "field_scenario": "A technician reads a transmitter's range settings over HART without breaking the loop.",
+  "troubleshooting": "HART traffic failing through an isolator usually means the isolator does not pass HART.",
+  "summary": "HART adds digital communication on top of a 4-20 mA signal for configuration and diagnostics. It does not change the analog value.",
+  "scenario": "A technician reads a transmitter's range settings over HART without breaking the loop.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-ground-loop",
+  "term": "Ground Loops and Isolation",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Multiple earth connections create circulating currents that distort low-level signals. Isolators or single-point grounding remove them.",
+  "field_scenario": "A flow signal drifts whenever a nearby motor starts, and an isolator cures it.",
+  "troubleshooting": "Check that signal shields are earthed at one end only.",
+  "summary": "Multiple earth connections create circulating currents that distort low-level signals. Isolators or single-point grounding remove them.",
+  "scenario": "A flow signal drifts whenever a nearby motor starts, and an isolator cures it.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-di-contact",
+  "term": "Digital Input Wetting Voltage",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Dry contacts need a supply voltage supplied by the RTU, called wetting voltage, to read open or closed. A missing supply gives no change.",
+  "field_scenario": "A float switch is wired but never changes because the input has no wetting supply.",
+  "troubleshooting": "Measure the voltage across the contact in both states.",
+  "summary": "Dry contacts need a supply voltage supplied by the RTU, called wetting voltage, to read open or closed. A missing supply gives no change.",
+  "scenario": "A float switch is wired but never changes because the input has no wetting supply.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-interposing",
+  "term": "Interposing Relay Test",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "An interposing relay isolates the RTU output from the field device. Testing proves the command actually moves the plant, not just the output.",
+  "field_scenario": "An RTU output energises, but the pump does not start because the relay coil is open.",
+  "troubleshooting": "Test the relay and field wiring separately, with the output forced from the RTU.",
+  "summary": "An interposing relay isolates the RTU output from the field device. Testing proves the command actually moves the plant, not just the output.",
+  "scenario": "An RTU output energises, but the pump does not start because the relay coil is open.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-p2p",
+  "term": "Point-to-Point Wiring Test",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Each cable core is tested from its field terminal to the RTU terminal against the drawing. It catches swaps before the I/O test.",
+  "field_scenario": "Two cores are swapped at a marshalling cabinet and found before power-up.",
+  "troubleshooting": "Continuity tests need the wiring isolated from live circuits and references from the latest drawings.",
+  "summary": "Each cable core is tested from its field terminal to the RTU terminal against the drawing. It catches swaps before the I/O test.",
+  "scenario": "Two cores are swapped at a marshalling cabinet and found before power-up.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-polarity",
+  "term": "Polarity and Wiring Faults",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Reversed polarity on analog or digital signals gives zero, inverted or negative readings. It is a common commissioning fault.",
+  "field_scenario": "A 4-20 mA loop reads zero because plus and minus are reversed.",
+  "troubleshooting": "Check polarity at each terminal with a meter before assuming a configuration fault.",
+  "summary": "Reversed polarity on analog or digital signals gives zero, inverted or negative readings. It is a common commissioning fault.",
+  "scenario": "A 4-20 mA loop reads zero because plus and minus are reversed.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-calibration",
+  "term": "Five-Point Calibration Check",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Instruments are checked at 0, 25, 50, 75 and 100 percent, rising and falling. The results show linearity and hysteresis.",
+  "field_scenario": "A pressure transmitter passes at all five points within its tolerance.",
+  "troubleshooting": "If readings differ rising versus falling, the instrument has hysteresis and should be serviced.",
+  "summary": "Instruments are checked at 0, 25, 50, 75 and 100 percent, rising and falling. The results show linearity and hysteresis.",
+  "scenario": "A pressure transmitter passes at all five points within its tolerance.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "fc-shield",
+  "term": "Cable Shield Termination",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Shields reduce noise when earthed correctly, usually at one end. Poor terminations give erratic readings.",
+  "field_scenario": "Noise on analog inputs vanishes after a loose shield is clamped.",
+  "troubleshooting": "Inspect shield continuity and earth points where noise correlates with plant equipment.",
+  "summary": "Shields reduce noise when earthed correctly, usually at one end. Poor terminations give erratic readings.",
+  "scenario": "Noise on analog inputs vanishes after a loose shield is clamped.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-wireshark",
+  "term": "Wireshark DNP3 Dissector",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Wireshark decodes DNP3 over TCP and shows function codes, objects and IIN bits. Capture on a mirrored switch port or tap.",
+  "field_scenario": "An engineer captures a master and RTU conversation to find why polls fail.",
+  "troubleshooting": "If packets are not decoded, confirm the port is 20000 or set DNP3 as the decode for that port.",
+  "summary": "Wireshark decodes DNP3 over TCP and shows function codes, objects and IIN bits. Capture on a mirrored switch port or tap.",
+  "scenario": "An engineer captures a master and RTU conversation to find why polls fail.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-wireshark-filters",
+  "term": "Useful Wireshark Display Filters",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Filters such as dnp3, tcp.port == 20000, dnp3.src and dnp3.dst narrow a capture to the stations of interest. Check field names against your Wireshark version.",
+  "field_scenario": "Filtering by the RTU's source address isolates its responses from a busy capture.",
+  "troubleshooting": "If a filter returns nothing, confirm the field name in the packet details pane.",
+  "summary": "Filters such as dnp3, tcp.port == 20000, dnp3.src and dnp3.dst narrow a capture to the stations of interest. Check field names against your Wireshark version.",
+  "scenario": "Filtering by the RTU's source address isolates its responses from a busy capture.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-wireshark-fc",
+  "term": "Filtering by Function Code",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Application function codes can be filtered to find unsolicited responses, controls or confirms. This isolates specific behaviour quickly.",
+  "field_scenario": "Filtering for function code 130 shows every unsolicited message sent by an RTU.",
+  "troubleshooting": "Use the application layer function code field and compare with the packet detail view.",
+  "summary": "Application function codes can be filtered to find unsolicited responses, controls or confirms. This isolates specific behaviour quickly.",
+  "scenario": "Filtering for function code 130 shows every unsolicited message sent by an RTU.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-span",
+  "term": "Mirror Port and Network Tap",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A mirror port or tap copies traffic to the analyser without disturbing the link. Capturing on a PC in the path misses much traffic.",
+  "field_scenario": "A SPAN port on the control network switch captures all master-to-RTU traffic.",
+  "troubleshooting": "No traffic in the capture means the mirror is on the wrong port or VLAN.",
+  "summary": "A mirror port or tap copies traffic to the analyser without disturbing the link. Capturing on a PC in the path misses much traffic.",
+  "scenario": "A SPAN port on the control network switch captures all master-to-RTU traffic.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-serial",
+  "term": "Serial Line Analysers",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A serial analyser or protocol monitor in line with an RS-232 or RS-485 link captures raw frames. It reveals timing and framing issues.",
+  "field_scenario": "A monitor shows frames starting with 0x05 0x64 and CRC errors at the end of long messages.",
+  "troubleshooting": "Check the analyser's baud, parity and stop bits match the line before reading results.",
+  "summary": "A serial analyser or protocol monitor in line with an RS-232 or RS-485 link captures raw frames. It reveals timing and framing issues.",
+  "scenario": "A monitor shows frames starting with 0x05 0x64 and CRC errors at the end of long messages.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-ase2000",
+  "term": "ASE2000 Test Set",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "A commercial test set that can act as a DNP3 master or outstation and record traffic. It is used for acceptance and fault finding.",
+  "field_scenario": "A test set is used as a master to check an RTU's point list before the real master is connected.",
+  "troubleshooting": "If the RTU does not answer, verify the test set uses the right link addresses and communication settings.",
+  "summary": "A commercial test set that can act as a DNP3 master or outstation and record traffic. It is used for acceptance and fault finding.",
+  "scenario": "A test set is used as a master to check an RTU's point list before the real master is connected.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-master-sim",
+  "term": "DNP3 Master Simulator",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Software that behaves as a master to test an outstation without the SCADA system. It can poll, send controls and show raw data.",
+  "field_scenario": "An engineer confirms an RTU's class assignments with a simulator before site acceptance.",
+  "troubleshooting": "Compare the simulator's results with the vendor device profile when something does not match.",
+  "summary": "Software that behaves as a master to test an outstation without the SCADA system. It can poll, send controls and show raw data.",
+  "scenario": "An engineer confirms an RTU's class assignments with a simulator before site acceptance.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-outstation-sim",
+  "term": "DNP3 Outstation Simulator",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Software that behaves as an RTU so the SCADA master's configuration can be tested early. Points and events are generated on demand.",
+  "field_scenario": "Server driver settings are proven in the office before any RTU is delivered.",
+  "troubleshooting": "If the server cannot connect to the simulator, check addresses, port and firewall first.",
+  "summary": "Software that behaves as an RTU so the SCADA master's configuration can be tested early. Points and events are generated on demand.",
+  "scenario": "Server driver settings are proven in the office before any RTU is delivered.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-iin-check",
+  "term": "IIN Review at Start-Up",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "After a restart an outstation sets the restart bit and possibly Need Time. Verify these appear and then clear as expected.",
+  "field_scenario": "After power-up, the master sees IIN1.7, clears it and runs an integrity poll.",
+  "troubleshooting": "A restart bit that never clears means the master is not writing the clear.",
+  "summary": "After a restart an outstation sets the restart bit and possibly Need Time. Verify these appear and then clear as expected.",
+  "scenario": "After power-up, the master sees IIN1.7, clears it and runs an integrity poll.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-integrity-verify",
+  "term": "Integrity Poll Verification",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Check that a Class 0 poll returns every configured point with the right type and index. Missing points show up immediately.",
+  "field_scenario": "A point list of 120 points is compared against the integrity poll response.",
+  "troubleshooting": "Missing points usually have the wrong object group or index in the outstation configuration.",
+  "summary": "Check that a Class 0 poll returns every configured point with the right type and index. Missing points show up immediately.",
+  "scenario": "A point list of 120 points is compared against the integrity poll response.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-control-verify",
+  "term": "Control Operation Verification",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Test select, operate and the resulting status for each control point, with the plant isolated where needed. Confirm the feedback input changes.",
+  "field_scenario": "A close command is sent and the breaker's closed indication changes within the expected time.",
+  "troubleshooting": "Controls that echo success without moving equipment indicate a wiring or relay fault beyond the protocol.",
+  "summary": "Test select, operate and the resulting status for each control point, with the plant isolated where needed. Confirm the feedback input changes.",
+  "scenario": "A close command is sent and the breaker's closed indication changes within the expected time.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-time-test",
+  "term": "Time Synchronisation Test",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Confirm the outstation takes time from the master or its local source and event stamps are correct. Compare against a reference clock.",
+  "field_scenario": "A forced input change is stamped within a few milliseconds of the reference.",
+  "troubleshooting": "Persistent offset suggests a time zone mismatch or a disabled time source.",
+  "summary": "Confirm the outstation takes time from the master or its local source and event stamps are correct. Compare against a reference clock.",
+  "scenario": "A forced input change is stamped within a few milliseconds of the reference.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-unsol-test",
+  "term": "Unsolicited Reporting Test",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Force a change and verify the outstation sends an unsolicited response that the master confirms. Also test behaviour after a restart.",
+  "field_scenario": "Toggling a test input raises an alarm in the control room within seconds.",
+  "troubleshooting": "No unsolicited message means the classes were not enabled or the point has no class assigned.",
+  "summary": "Force a change and verify the outstation sends an unsolicited response that the master confirms. Also test behaviour after a restart.",
+  "scenario": "Toggling a test input raises an alarm in the control room within seconds.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "an-class-test",
+  "term": "Event Class Assignment Test",
+  "protocol": "DNP3",
+  "category": "driver",
+  "definition": "Verify each point is in the intended event class by changing it and watching which class poll returns the event.",
+  "field_scenario": "A breaker trip appears in the Class 1 poll but a temperature change appears in Class 3.",
+  "troubleshooting": "Events in the wrong class mean the assignment in the outstation or the Assign Class command is wrong.",
+  "summary": "Verify each point is in the intended event class by changing it and watching which class poll returns the event.",
+  "scenario": "A breaker trip appears in the Class 1 poll but a temperature change appears in Class 3.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-fat-sat",
+  "term": "FAT and SAT",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Factory acceptance tests prove the system before shipping, and site acceptance tests prove it after installation. Both use a signed test plan.",
+  "field_scenario": "The server and simulated RTUs pass FAT, then real RTUs are tested during SAT.",
+  "troubleshooting": "Issues that only appear on site usually relate to communications and wiring, not configuration.",
+  "summary": "Factory acceptance tests prove the system before shipping, and site acceptance tests prove it after installation. Both use a signed test plan.",
+  "scenario": "The server and simulated RTUs pass FAT, then real RTUs are tested during SAT.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-driver-checklist",
+  "term": "Driver Commissioning Checklist",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "A list covering channel settings, outstation addresses, scan rates and unsolicited settings. Each item is checked and recorded.",
+  "field_scenario": "A new site is added only after every checklist item has a recorded result.",
+  "troubleshooting": "Start with the lowest layer: physical link, then addresses, then points.",
+  "summary": "A list covering channel settings, outstation addresses, scan rates and unsolicited settings. Each item is checked and recorded.",
+  "scenario": "A new site is added only after every checklist item has a recorded result.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-comm-baseline",
+  "term": "Communication Statistics Baseline",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Record error and retry counts soon after commissioning to compare later. A healthy baseline makes faults obvious.",
+  "field_scenario": "A channel error rate of 0.1 percent at handover rises to 4 percent months later.",
+  "troubleshooting": "Use the baseline to decide whether the link or the configuration has changed.",
+  "summary": "Record error and retry counts soon after commissioning to compare later. A healthy baseline makes faults obvious.",
+  "scenario": "A channel error rate of 0.1 percent at handover rises to 4 percent months later.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-watchdog",
+  "term": "Client-Server Watchdog",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "A heartbeat between client and server detects a stalled connection. When it stops, the client marks data as bad.",
+  "field_scenario": "A hung server stops the heartbeat and operator screens turn to bad quality.",
+  "troubleshooting": "Spurious watchdog trips mean the heartbeat interval is too short for network delays.",
+  "summary": "A heartbeat between client and server detects a stalled connection. When it stops, the client marks data as bad.",
+  "scenario": "A hung server stops the heartbeat and operator screens turn to bad quality.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-failover",
+  "term": "Live Failover Verification",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Deliberately stop the primary server or path and confirm the standby takes over. Record the time taken and any data lost.",
+  "field_scenario": "The primary server is shut down and operators lose view for under a minute.",
+  "troubleshooting": "If failover is slow or fails, check the standby's configuration, time sync and channel access.",
+  "summary": "Deliberately stop the primary server or path and confirm the standby takes over. Record the time taken and any data lost.",
+  "scenario": "The primary server is shut down and operators lose view for under a minute.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-standby-sync",
+  "term": "Standby Configuration Sync Check",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Confirm the standby has the same configuration and current data as the primary before relying on it.",
+  "field_scenario": "A tag added on the primary is missing on the standby until synchronisation is fixed.",
+  "troubleshooting": "Compare configuration versions and replication status on both servers.",
+  "summary": "Confirm the standby has the same configuration and current data as the primary before relying on it.",
+  "scenario": "A tag added on the primary is missing on the standby until synchronisation is fixed.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-alarm-test",
+  "term": "Alarm Limit Testing",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "Drive each point beyond its limits and verify the alarm text, severity and clear behaviour. It proves limits were entered correctly.",
+  "field_scenario": "A simulated tank level raises the high and high-high alarms in order.",
+  "troubleshooting": "Alarms that never trigger often have limits entered in raw units, not engineering units.",
+  "summary": "Drive each point beyond its limits and verify the alarm text, severity and clear behaviour. It proves limits were entered correctly.",
+  "scenario": "A simulated tank level raises the high and high-high alarms in order.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-tag-naming",
+  "term": "Tag Naming Validation",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Names are checked against the project standard so operators and reports find points consistently.",
+  "field_scenario": "A scan finds a pump tag with a different prefix than the rest of the station.",
+  "troubleshooting": "Fix names through templates so every instance stays consistent.",
+  "summary": "Names are checked against the project standard so operators and reports find points consistently.",
+  "scenario": "A scan finds a pump tag with a different prefix than the rest of the station.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-historian-check",
+  "term": "Historian Data Verification",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Verify that values reach the historian with correct timestamps and storage settings. Compare a trend with the live value.",
+  "field_scenario": "A trend of a tank level matches the live display after a test change.",
+  "troubleshooting": "Missing data means the point is not set for storage or the historian link is down.",
+  "summary": "Verify that values reach the historian with correct timestamps and storage settings. Compare a trend with the live value.",
+  "scenario": "A trend of a tank level matches the live display after a test change.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-comms-loss",
+  "term": "Loss-of-Communications Test",
+  "protocol": "Aveva Telemetry",
+  "category": "alarm",
+  "definition": "Disconnect a site's link and confirm the alarm, bad quality and recovery. It proves the system reacts as designed.",
+  "field_scenario": "A radio is switched off and the control room sees the failure alarm and bad-quality values.",
+  "troubleshooting": "No alarm means failure detection or alarm routing is not configured for that outstation.",
+  "summary": "Disconnect a site's link and confirm the alarm, bad quality and recovery. It proves the system reacts as designed.",
+  "scenario": "A radio is switched off and the control room sees the failure alarm and bad-quality values.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-restore",
+  "term": "Backup and Restore Test",
+  "protocol": "Aveva Telemetry",
+  "category": "driver",
+  "definition": "Restore a backup onto a spare system to prove it works. A backup that has never been restored is unproven.",
+  "field_scenario": "A test restore reveals a missing licence file that would have delayed recovery.",
+  "troubleshooting": "Document every item needed for restore, including licences and certificates.",
+  "summary": "Restore a backup onto a spare system to prove it works. A backup that has never been restored is unproven.",
+  "scenario": "A test restore reveals a missing licence file that would have delayed recovery.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-hardening",
+  "term": "Default Credential and Hardening Check",
+  "protocol": "Aveva Telemetry",
+  "category": "security",
+  "definition": "Replace default passwords, disable unused services and restrict network access before handover.",
+  "field_scenario": "An RTU is delivered with a default web login that is changed during commissioning.",
+  "troubleshooting": "Scan the network for open ports and compare them with the approved list.",
+  "summary": "Replace default passwords, disable unused services and restrict network access before handover.",
+  "scenario": "An RTU is delivered with a default web login that is changed during commissioning.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-as-built",
+  "term": "As-Built Documentation",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "Final drawings, point lists and settings that match what was installed. They are the basis for future maintenance.",
+  "field_scenario": "A fault years later is solved quickly because the as-built point list is accurate.",
+  "troubleshooting": "Update documents whenever a change is made on site, not later.",
+  "summary": "Final drawings, point lists and settings that match what was installed. They are the basis for future maintenance.",
+  "scenario": "A fault years later is solved quickly because the as-built point list is accurate.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
+ },
+ {
+  "id": "cm-punch-list",
+  "term": "Punch List",
+  "protocol": "Aveva Telemetry",
+  "category": "tag",
+  "definition": "A recorded list of outstanding defects at handover with owners and dates. It ensures nothing is forgotten.",
+  "field_scenario": "A missing alarm text and a mislabelled terminal are fixed and closed out before acceptance.",
+  "troubleshooting": "Review the list regularly and close each item with evidence.",
+  "summary": "A recorded list of outstanding defects at handover with owners and dates. It ensures nothing is forgotten.",
+  "scenario": "A missing alarm text and a mislabelled terminal are fixed and closed out before acceptance.",
+  "integration": "",
+  "industry": [
+   "Power",
+   "Water",
+   "Oil & Gas"
+  ],
+  "level": "essential"
  }
 ]

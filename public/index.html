@@ -1,64 +1,40 @@
 <!doctype html>
 <html lang="en" data-theme="light">
 <head>
-<base href="/scada-telemetry-dictionary/">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SCADA Field Dictionary | Al Gurg Automation and Controls</title>
 <meta name="description" content="Offline dictionary for DNP3 and Aveva Telemetry.">
-<meta name="theme-color" content="#3b2a20">
-<!-- <meta name="sentry-dsn" content="YOUR_DSN"> -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg">
-<link rel="stylesheet" href="main.css">
+<meta name="theme-color" content="#3b2a20"><!-- <meta name="sentry-dsn" content="YOUR_DSN"> -->
+<link rel="manifest" href="./manifest.json"><link rel="icon" href="./icon.svg"><link rel="stylesheet" href="./main.css">
 </head>
 <body>
 <a class="skip" href="#grid">Skip to terms</a>
 <header class="top">
-  <div>
-    <div class="brand">Al Gurg Automation and Controls</div>
-    <h1 class="kinetic">DNP3 and Telemetry, explained on site.</h1>
-  </div>
+  <div><div class="brand">Al Gurg Automation and Controls</div><h1 class="kinetic">DNP3 and Telemetry, explained on site.</h1></div>
   <div class="tools" role="toolbar" aria-label="Display settings">
     <button class="btn" data-pref="dark" aria-label="Toggle dark mode">Dark</button>
     <button class="btn" data-pref="contrast" aria-label="Toggle high contrast">Contrast</button>
     <button class="btn" data-pref="focus" aria-label="Toggle focus mode">Focus</button>
     <button class="btn" data-pref="sound" aria-label="Toggle sound accents">Sound</button>
-    <button class="btn" id="smaller" aria-label="Smaller text">A-</button>
-    <button class="btn" id="bigger" aria-label="Larger text">A+</button>
+    <button class="btn" id="smaller" aria-label="Smaller text">A-</button><button class="btn" id="bigger" aria-label="Larger text">A+</button>
   </div>
 </header>
 <main>
   <div class="search" role="search">
     <label class="sr" for="q">Search terms</label>
-    <input id="q" type="search" list="sugg" placeholder="Search terms (press /)" autocomplete="off">
-    <datalist id="sugg"></datalist>
-    <label class="sr" for="f-protocol">Protocol</label>
-    <select id="f-protocol"></select>
-    <label class="sr" for="f-industry">Industry</label>
-    <select id="f-industry"></select>
-    <button class="btn" id="mic" aria-label="Voice search">Mic</button>
-    <button class="btn" id="saved-only">Saved</button>
+    <input id="q" type="search" list="sugg" placeholder="Search terms (press /)" autocomplete="off"><datalist id="sugg"></datalist>
+    <label class="sr" for="f-protocol">Protocol</label><select id="f-protocol"></select>
+    <label class="sr" for="f-industry">Industry</label><select id="f-industry"></select>
+    <button class="btn" id="mic" aria-label="Voice search">Mic</button><button class="btn" id="saved-only">Saved</button>
   </div>
   <section class="dash" aria-label="Your study dashboard">
-    <div class="panel">
-      <strong>Progress</strong>
-      <div class="bar" id="progress" role="presentation"></div>
-      <span id="progress-text"></span>
-    </div>
-    <div class="panel">
-      <strong>Recently viewed</strong>
-      <p id="recent"></p>
-    </div>
+    <div class="panel"><strong>Progress</strong><div class="bar" id="progress" role="presentation"></div><span id="progress-text"></span></div>
+    <div class="panel"><strong>Recently viewed</strong><p id="recent"></p></div>
   </section>
   <p id="status" class="sr" role="status" aria-live="polite"></p>
-  <div id="list">
-    <p id="count" aria-live="polite"></p>
-    <div id="grid" class="grid"></div>
-  </div>
+  <div id="list"><p id="count" aria-live="polite"></p><div id="grid" class="grid"></div></div>
   <div id="detail" hidden></div>
 </main>
 <div id="overlay"></div>
-<script type="module" src="js/main.js"></script>
-</body>
-</html>
+<script type="module" src="./js/main.js"></script>
+</body></html>
