@@ -10,11 +10,17 @@ const state: State = load();
 let terms: Term[] = [];
 let protocol = 'All', industry = 'All', openId: string | null = null;
 
+// Relative to the page URL so it works under a repository subpath such as /repo-name/.
+async function loadTerms(): Promise<Term[]> {
+  for (const p of ['terms.json', 'database/terms.json']) {
+    try { const r = await fetch(new URL(p, document.baseURI).href); if (r.ok) return (await r.json()) as Term[]; } catch { /* try next */ }
+  }
+  throw new Error('terms.json not found relative to ' + document.baseURI);
+}
 async function boot(): Promise<void> {
   try {
-    const r = await fetch('./terms.json'); if (!r.ok) throw new Error(String(r.status));
-    terms = (await r.json()) as Term[];
-  } catch { $('#grid').innerHTML = '<p role="alert">Could not load the dictionary. Reconnect once to cache it for offline use.</p>'; return; }
+    terms = await loadTerms();
+  } catch (e) { $('#grid').innerHTML = '<p role="alert">Could not load the dictionary (' + h(String(e)) + '). Reconnect once to cache it for offline use.</p>'; return; }
   initSentry();
   applyPrefs(); fillFilters(); render(); dashboard(); wire();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => undefined);
